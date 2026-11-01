@@ -399,6 +399,93 @@ function renderCartSummary() {
     summaryEl.innerHTML = html;
 }
 
+// Estado de localização GPS
+let customerLocation = null;
+
+/**
+ * Obtém a localização GPS atual do cliente via navegador
+ */
+async function getCurrentLocation() {
+    const btn = document.getElementById('btn-get-location');
+    const statusDiv = document.getElementById('location-status');
+    const statusText = document.getElementById('location-status-text');
+    const addressInput = document.getElementById('customer-address');
+    const t = (typeof getTranslation === 'function') ? getTranslation : (k) => k;
+
+    if (!navigator.geolocation) {
+        showToast(t('location_error'), 'warning');
+        return;
+    }
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-amber-400"></i> <span>${t('location_fetching')}</span>`;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const mapUrl = `https://maps.google.com/?q=${lat},${lng}`;
+
+            customerLocation = { lat, lng, mapUrl };
+
+            // Tentar reverse geocoding via OpenStreetMap (gratuito)
+            let detectedAddress = '';
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.address) {
+                        const a = data.address;
+                        const road = a.road || a.pedestrian || a.street || '';
+                        const num = a.house_number || '';
+                        const town = a.city || a.town || a.village || a.suburb || 'Nantucket';
+                        if (road) {
+                            detectedAddress = num ? `${num} ${road}, ${town}` : `${road}, ${town}`;
+                        } else if (data.display_name) {
+                            detectedAddress = data.display_name.split(',').slice(0, 3).join(',').trim();
+                        }
+                    }
+                }
+            } catch (e) {
+                // Silencioso se der timeout
+            }
+
+            if (addressInput) {
+                if (detectedAddress) {
+                    addressInput.value = detectedAddress;
+                } else if (!addressInput.value.trim()) {
+                    addressInput.value = `Nantucket, MA (GPS: ${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                }
+                addressInput.classList.add('border-emerald-500/50');
+            }
+
+            if (statusDiv && statusText) {
+                statusDiv.classList.remove('hidden');
+                statusText.textContent = t('location_success');
+            }
+
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> <span class="text-emerald-400 font-semibold">${t('btn_use_location')}</span>`;
+            }
+
+            showToast(`📍 ${t('location_success')}`, 'success');
+            updateOrderButton();
+        },
+        (err) => {
+            console.warn('Geolocation error:', err);
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-location-crosshairs text-amber-400"></i> <span>${t('btn_use_location')}</span>`;
+            }
+            showToast(t('location_error'), 'warning');
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+}
+
 /**
  * Monta e envia a mensagem formatada para o WhatsApp
  */
@@ -430,7 +517,7 @@ function sendWhatsAppOrder() {
 
     let message;
     if (lang === 'en') {
-        message = `*Hello! I'd like to place an order at Sabor Mineiro ACK!* 🍲❄️\n\n`;
+        message = `*Hello! I'd like to place an order at Sabor Mineiro ACK!*\n\n`;
         message += `*ORDER ITEMS:*\n`;
         for (const [id, qty] of Object.entries(cart)) {
             if (qty > 0) {
@@ -442,9 +529,12 @@ function sendWhatsAppOrder() {
         message += `\n*TOTAL:* $${totalPrice}.00 USD\n`;
         message += `*Customer:* ${name}\n`;
         message += `*Delivery Address:* ${address} (Nantucket)\n`;
+        if (customerLocation && customerLocation.mapUrl) {
+            message += `📍 *GPS Location (Google Maps):* ${customerLocation.mapUrl}\n`;
+        }
         message += `\n_Awaiting confirmation and estimated delivery time!_`;
     } else {
-        message = `*Olá! Gostaria de fazer um pedido no Sabor Mineiro ACK!* 🍲❄️\n\n`;
+        message = `*Olá! Gostaria de fazer um pedido no Sabor Mineiro ACK!*\n\n`;
         message += `*ITENS DO PEDIDO:*\n`;
         for (const [id, qty] of Object.entries(cart)) {
             if (qty > 0) {
@@ -456,6 +546,9 @@ function sendWhatsAppOrder() {
         message += `\n*VALOR TOTAL:* $${totalPrice}.00 USD\n`;
         message += `*Cliente:* ${name}\n`;
         message += `*Endereço para entrega:* ${address} (Nantucket)\n`;
+        if (customerLocation && customerLocation.mapUrl) {
+            message += `📍 *Localização GPS (Google Maps):* ${customerLocation.mapUrl}\n`;
+        }
         message += `\n_Aguardando confirmação e tempo estimado de entrega!_`;
     }
 
@@ -471,6 +564,15 @@ function sendWhatsAppOrder() {
  * Reseta o carrinho e limpa os campos do formulário após envio do pedido
  */
 function resetCart() {
+    customerLocation = null;
+    const statusDiv = document.getElementById('location-status');
+    if (statusDiv) statusDiv.classList.add('hidden');
+    const btnLoc = document.getElementById('btn-get-location');
+    if (btnLoc) {
+        const t = (typeof getTranslation === 'function') ? getTranslation : (k) => k;
+        btnLoc.innerHTML = `<i class="fa-solid fa-location-crosshairs text-amber-400"></i> <span data-i18n="btn_use_location">${t('btn_use_location')}</span>`;
+    }
+
     for (const id of Object.keys(cart)) {
         cart[id] = 0;
         const qtyEl = document.getElementById(`qty-${id}`);
