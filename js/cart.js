@@ -531,7 +531,7 @@ function sendWhatsAppOrder() {
         message += `*Delivery Address:* ${address} (Nantucket)\n`;
         const mapUrl = (customerLocation && customerLocation.mapUrl)
             ? customerLocation.mapUrl
-            : `https://maps.google.com/?q=${encodeURIComponent(address + ', Nantucket, MA')}`;
+            : `https://maps.google.com/?q=${encodeURIComponent(address)}`;
         message += `📍 *Google Maps (GPS / Rota):* ${mapUrl}\n`;
         message += `\n_Awaiting confirmation and estimated delivery time!_`;
     } else {
@@ -546,10 +546,10 @@ function sendWhatsAppOrder() {
         }
         message += `\n*VALOR TOTAL:* $${totalPrice}.00 USD\n`;
         message += `*Cliente:* ${name}\n`;
-        message += `*Endereço para entrega:* ${address} (Nantucket)\n`;
+        message += `*Endereço para entrega:* ${address}\n`;
         const mapUrl = (customerLocation && customerLocation.mapUrl)
             ? customerLocation.mapUrl
-            : `https://maps.google.com/?q=${encodeURIComponent(address + ', Nantucket, MA')}`;
+            : `https://maps.google.com/?q=${encodeURIComponent(address)}`;
         message += `📍 *Google Maps (GPS / Rota):* ${mapUrl}\n`;
         message += `\n_Aguardando confirmação e tempo estimado de entrega!_`;
     }
