@@ -1,0 +1,52 @@
+[
+    {
+        "id": "frango",
+        "badge": {
+            "pt": "Favorito da Casa",
+            "en": "House Favorite"
+        },
+        "badgeColor": "bg-orange-600",
+        "badgeIcon": "fa-star",
+        "name": {
+            "pt": "Caldo de Frango com Milho",
+            "en": "Chicken & Corn Chowder (Caldo de Frango)"
+        },
+        "description": {
+            "pt": "Frango desfiado suculento, caldo super cremoso de milho verde fresco, milho inteiro, cheiro-verde e temperos especiais de Minas Gerais. Perfeito para aquecer os dias frios.",
+            "en": "Juicy shredded chicken breast, silky sweet corn chowder, whole corn kernels, fresh scallions, and traditional Minas Gerais seasoning. Perfect for cold island days."
+        },
+        "extra": {
+            "pt": "Acompanha cheiro-verde e torradas artesanais quentinhas",
+            "en": "Includes fresh herbs and warm artisanal toast"
+        },
+        "price": 20,
+        "image": "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80",
+        "imageFallback": "https://placehold.co/800x600/261c16/f39c12?text=Caldo+de+Frango",
+        "active": true
+    },
+    {
+        "id": "mandioca",
+        "badge": {
+            "pt": "Tradicional Mineiro",
+            "en": "Traditional Brazilian"
+        },
+        "badgeColor": "bg-amber-600",
+        "badgeIcon": "fa-crown",
+        "name": {
+            "pt": "Caldo de Mandioca Especial",
+            "en": "Creamy Yucca & Bacon Soup (Caldo de Mandioca)"
+        },
+        "description": {
+            "pt": "Mandioca selecionada extremamente aveludada, cozida lentamente com temperos caseiros, refogado de alho, cebola, bacon e cheiro-verde. Sabor marcante e inesquecível!",
+            "en": "Smooth, velvety cassava/yucca root slowly simmered with sautéed garlic, sweet onions, crispy bacon bits, and fresh herbs. Rich, hearty, and deeply satisfying!"
+        },
+        "extra": {
+            "pt": "Acompanha torresmo / cheiro-verde e torradas",
+            "en": "Includes crispy bacon / fresh herbs and toast"
+        },
+        "price": 20,
+        "image": "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80",
+        "imageFallback": "https://placehold.co/800x600/261c16/f39c12?text=Caldo+de+Mandioca",
+        "active": true
+    }
+]

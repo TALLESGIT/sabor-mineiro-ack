@@ -1,0 +1,368 @@
+/* ==========================================================================
+   Sabor Mineiro ACK - Estilos Personalizados
+   Caldos no Capricho em Nantucket
+   ========================================================================== */
+
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: #0f0c0a;
+    color: #f3f4f6;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    overflow-x: hidden;
+}
+
+/* Smooth scroll para links âncora */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Painel e Cartões Glassmorphism */
+.glass-panel {
+    background: rgba(28, 20, 16, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(243, 156, 18, 0.15);
+}
+
+.glass-card {
+    background: rgba(35, 26, 21, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.glass-card:hover {
+    border-color: rgba(243, 156, 18, 0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px -10px rgba(230, 92, 0, 0.3);
+}
+
+/* No mobile, desabilitar hover transform para evitar efeito travado */
+@media (hover: none) {
+    .glass-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+/* Gradientes de Texto */
+.text-gradient {
+    background: linear-gradient(135deg, #fff 30%, #f39c12 70%, #e65c00 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-gold {
+    background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Brilho Pulsante */
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 15px rgba(230, 92, 0, 0.4); }
+    50% { box-shadow: 0 0 30px rgba(243, 156, 18, 0.7); }
+}
+
+.glow-btn {
+    animation: pulse-glow 3s infinite;
+}
+
+/* Canvas da Neve de Fundo */
+.snowflakes {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.25;
+}
+
+/* Animação suave para o contador de quantidade */
+@keyframes qty-bump {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+.qty-animate {
+    animation: qty-bump 0.2s ease-out;
+}
+
+/* Animação de entrada das seções */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out both;
+}
+
+/* Botão flutuante do WhatsApp */
+.whatsapp-float {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 100;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.5);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(37, 211, 102, 0.6);
+}
+
+.whatsapp-float i {
+    color: white;
+    font-size: 28px;
+}
+
+/* Pulse ring animation */
+.whatsapp-float::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(37, 211, 102, 0.3);
+    animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* Toast notification */
+.toast {
+    position: fixed;
+    top: 75px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    z-index: 200;
+    padding: 10px 20px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    pointer-events: none;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    max-width: 90vw;
+    width: auto;
+    text-align: center;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    line-height: 1.4;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.toast.success {
+    background: rgba(16, 185, 129, 0.9);
+    color: white;
+    border: 1px solid rgba(52, 211, 153, 0.5);
+}
+
+.toast.warning {
+    background: rgba(245, 158, 11, 0.9);
+    color: white;
+    border: 1px solid rgba(251, 191, 36, 0.5);
+}
+
+/* Scroll-margin para compensar o header fixo */
+#cardapio, #entregas {
+    scroll-margin-top: 80px;
+}
+
+/* Inputs estilizados no foco */
+input:focus {
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+    transition: all 0.2s ease;
+}
+
+/* Badge de contagem no carrinho do header */
+.cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #ef4444;
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: scale(0);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cart-badge.visible {
+    transform: scale(1);
+}
+
+/* Loading skeleton para as imagens */
+.img-skeleton {
+    background: linear-gradient(90deg, #1a1410 25%, #261c16 50%, #1a1410 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Divisor com gradiente decorativo */
+.divider-glow {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(243, 156, 18, 0.3), transparent);
+}
+
+/* Estilo para o resumo do carrinho com itens */
+.cart-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cart-item-row:last-child {
+    border-bottom: none;
+}
+
+/* ==========================================================================
+   Seletor de Idioma (Bandeiras PT/EN)
+   ========================================================================== */
+.lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 3px;
+    flex-shrink: 0;
+}
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    line-height: 1;
+}
+
+/* Bandeiras como imagens SVG (fallback universal para todos os devices) */
+.lang-btn .flag-img {
+    width: 20px;
+    height: 14px;
+    border-radius: 2px;
+    object-fit: cover;
+    box-shadow: 0 0 2px rgba(0,0,0,0.3);
+    flex-shrink: 0;
+}
+
+.lang-btn:hover {
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.lang-btn.active {
+    background: rgba(243, 156, 18, 0.2);
+    color: #fbbf24;
+    border-color: rgba(243, 156, 18, 0.3);
+    box-shadow: 0 0 8px rgba(243, 156, 18, 0.15);
+}
+
+.lang-btn.active .flag-img {
+    box-shadow: 0 0 4px rgba(243, 156, 18, 0.4);
+}
+
+/* Em telas pequenas, mostrar só a bandeira */
+@media (max-width: 480px) {
+    .lang-btn .lang-label {
+        display: none;
+    }
+    .lang-btn {
+        padding: 5px 7px;
+    }
+    .lang-switcher {
+        gap: 1px;
+    }
+}
+
+/* ==========================================================================
+   Aviso abaixo do botão de enviar pedido
+   ========================================================================== */
+.order-hint {
+    display: block;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 8px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.order-hint--warning {
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.15);
+}
+
+.order-hint--ready {
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.08);
+    border: 1px solid rgba(52, 211, 153, 0.15);
+}
+
+/* Animação de pulso sutil no hint de aviso */
+@keyframes hint-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.order-hint--warning {
+    animation: hint-pulse 2.5s ease-in-out infinite;
+}
+
+.order-hint--ready {
+    animation: none;
+}

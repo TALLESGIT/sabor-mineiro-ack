@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Cardápio | Sabor Mineiro ACK</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        amber: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' },
+                        brand: { dark: '#0f0c0a', card: '#1a1410', accent: '#e65c00' }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-file-upload {
+            border: 1px dashed rgba(245, 158, 11, 0.4);
+            transition: all 0.2s ease;
+        }
+        .custom-file-upload:hover {
+            border-color: rgba(245, 158, 11, 0.9);
+            background: rgba(245, 158, 11, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-[#0f0c0a] text-gray-200 min-h-screen pb-24">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Header Fixo do Painel -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-white/10 px-4 py-3 sm:px-6">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-600 to-orange-500 flex items-center justify-center text-white shadow-md hover:scale-105 transition" title="Ir para o Cardápio">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold text-white flex items-center gap-1.5">
+                        Gerenciar Cardápio <span class="text-amber-500 font-serif italic text-xs sm:text-sm">Sabor Mineiro</span>
+                    </h1>
+                    <p class="text-[11px] text-gray-400">Edite fotos, textos, preços ou adicione novos caldos</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="addNewProduct()" class="bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 border border-white/10">
+                    <i class="fa-solid fa-plus text-amber-400"></i>
+                    <span>Novo Caldo</span>
+                </button>
+                <button onclick="saveAllProducts()" id="btn-save-all" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl shadow-lg transition flex items-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>Salvar Alterações</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 pt-6">
+        <!-- Banner de Dica -->
+        <div class="glass-card rounded-2xl p-4 sm:p-5 mb-6 border border-amber-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">
+                    <i class="fa-solid fa-camera text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-sm font-bold text-white">Como trocar a imagem de um produto?</h2>
+                    <p class="text-xs text-gray-400">Cole o link direto de uma foto da internet (ex: Unsplash) OU clique em <strong>"Enviar Foto do Dispositivo"</strong> para carregar do seu celular ou PC.</p>
+                </div>
+            </div>
+            <a href="index.html" target="_blank" class="text-xs text-amber-400 hover:text-amber-300 font-semibold underline flex items-center gap-1 flex-shrink-0">
+                <span>Ver cardápio ao vivo</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+        </div>
+
+        <!-- Lista de Produtos -->
+        <div id="products-list" class="space-y-6">
+            <!-- Renderizado dinamicamente via JavaScript -->
+            <div class="text-center py-16 text-gray-500">
+                <i class="fa-solid fa-circle-notch fa-spin text-2xl text-amber-500 mb-2"></i>
+                <p class="text-sm">Carregando cardápio...</p>
+            </div>
+        </div>
+
+        <!-- Botão Adicionar no Rodapé -->
+        <div class="text-center pt-8">
+            <button onclick="addNewProduct()" class="border-2 border-dashed border-amber-500/40 hover:border-amber-500 text-amber-400 hover:text-amber-300 font-semibold px-6 py-4 rounded-2xl transition flex items-center justify-center gap-2 mx-auto w-full max-w-md bg-amber-500/5">
+                <i class="fa-solid fa-plus-circle text-lg"></i>
+                <span>Adicionar Mais Um Caldo / Produto</span>
+            </button>
+        </div>
+    </main>
+
+    <script>
+        let products = [];
+
+        // Exibir notificação toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            void toast.offsetHeight;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Carregar produtos da API ou do arquivo local
+        async function loadProducts() {
+            try {
+                const res = await fetch('/api/products?t=' + Date.now());
+                if (!res.ok) throw new Error('Falha ao carregar API');
+                products = await res.json();
+                try {
+                    localStorage.setItem('sabor_mineiro_custom_products', JSON.stringify(products));
+                } catch (e) {}
+            } catch (err) {
+                console.warn('Usando fallback do arquivo ou localStorage:', err);
+                const local = localStorage.getItem('sabor_mineiro_custom_products');
+                if (local) {
+                    products = JSON.parse(local);
+                } else {
+                    try {
+                        const fallbackRes = await fetch('products.json');
+                        products = await fallbackRes.json();
+                    } catch (e) {
+                        products = [];
+                    }
+                }
+            }
+            renderProductCards();
+        }
+
+        // Renderizar a lista de cards no painel
+        function renderProductCards() {
+            const container = document.getElementById('products-list');
+            if (!container) return;
+
+            if (products.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 glass-card rounded-2xl p-6">
+                        <p class="text-gray-400 text-sm mb-4">Nenhum caldo cadastrado ainda.</p>
+                        <button onclick="addNewProduct()" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-xl text-sm font-bold">
+                            Criar Primeiro Caldo
+                        </button>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = products.map((item, index) => `
+                <div class="glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 border ${item.active ? 'border-white/10' : 'border-red-500/30 opacity-70'} relative transition" id="card-${index}">
+                    
+                    <!-- Barra Superior do Card -->
+                    <div class="flex items-center justify-between pb-4 border-b border-white/5 mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 font-bold text-xs flex items-center justify-center">${index + 1}</span>
+                            <span class="font-bold text-white text-sm sm:text-base">${item.name.pt || 'Novo Caldo'}</span>
+                            ${!item.active ? '<span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full font-bold">Oculto no Cardápio</span>' : ''}
+                        </div>
+
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="moveProduct(${index}, -1)" ${index === 0 ? 'disabled class="opacity-30 cursor-not-allowed"' : 'class="hover:bg-white/10"'} title="Mover para cima" class="p-1.5 rounded-lg text-gray-400 hover:text-white transition">
+                                <i class="fa-solid fa-arrow-up text-xs"></i>
+                            </button>
+                            <button onclick="moveProduct(${index}, 1)" ${index === products.length - 1 ? 'disabled class="opacity-30 cursor-not-allowed"' : 'class="hover:bg-white/10"'} title="Mover para baixo" class="p-1.5 rounded-lg text-gray-400 hover:text-white transition">
+                                <i class="fa-solid fa-arrow-down text-xs"></i>
+                            </button>
+                            <button onclick="toggleProductActive(${index})" title="${item.active ? 'Ocultar do cardápio' : 'Mostrar no cardápio'}" class="p-1.5 rounded-lg ${item.active ? 'text-emerald-400 hover:bg-emerald-500/20' : 'text-gray-500 hover:bg-white/10'} transition">
+                                <i class="fa-solid ${item.active ? 'fa-eye' : 'fa-eye-slash'} text-xs"></i>
+                            </button>
+                            <button onclick="deleteProduct(${index})" title="Excluir caldo" class="p-1.5 rounded-lg text-red-400 hover:bg-red-500/20 transition">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid lg:grid-cols-12 gap-5">
+                        <!-- Coluna 1: Imagem e Upload (4 cols) -->
+                        <div class="lg:col-span-4 space-y-3">
+                            <label class="block text-xs font-semibold text-gray-300">Foto do Caldo</label>
+                            <div class="relative h-44 rounded-xl overflow-hidden border border-white/10 bg-black/40 group">
+                                <img src="${item.image || item.imageFallback}" id="preview-img-${index}" alt="Foto" class="w-full h-full object-cover">
+                                <div class="absolute bottom-2 right-2 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-gray-300">
+                                    Prévia
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">Link da Imagem (URL):</label>
+                                <input type="url" value="${escapeHtml(item.image)}" onchange="updateProductField(${index}, 'image', this.value)" placeholder="https://exemplo.com/foto.jpg" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                            </div>
+
+                            <!-- Botão de Upload do Dispositivo -->
+                            <div>
+                                <label class="custom-file-upload flex items-center justify-center gap-2 p-2 rounded-xl cursor-pointer text-xs text-amber-300 bg-amber-500/10">
+                                    <i class="fa-solid fa-upload text-amber-400"></i>
+                                    <span>Enviar Foto do Celular / PC</span>
+                                    <input type="file" accept="image/*" class="hidden" onchange="uploadImageForProduct(${index}, this)">
+                                </label>
+                                <p class="text-[10px] text-gray-500 text-center mt-1">Formatos aceitos: JPG, PNG, WEBP</p>
+                            </div>
+                        </div>
+
+                        <!-- Coluna 2: Textos e Informações (8 cols) -->
+                        <div class="lg:col-span-8 space-y-3">
+                            <!-- Preço e Badge -->
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-gray-300 mb-1">Preço ($ USD):</label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-2 text-xs text-gray-400 font-bold">$</span>
+                                        <input type="number" min="1" step="0.5" value="${item.price || 20}" onchange="updateProductField(${index}, 'price', parseFloat(this.value))" class="w-full bg-black/60 border border-white/10 rounded-xl pl-7 pr-3 py-1.5 text-sm font-bold text-amber-400 focus:outline-none focus:border-amber-500">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-gray-300 mb-1">Destaque (PT):</label>
+                                    <input type="text" value="${escapeHtml(item.badge?.pt || '')}" onchange="updateProductNestedField(${index}, 'badge', 'pt', this.value)" placeholder="Ex: Favorito da Casa" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                                </div>
+                                <div class="col-span-2 sm:col-span-1">
+                                    <label class="block text-[11px] font-semibold text-gray-300 mb-1">Destaque (EN):</label>
+                                    <input type="text" value="${escapeHtml(item.badge?.en || '')}" onchange="updateProductNestedField(${index}, 'badge', 'en', this.value)" placeholder="Ex: House Favorite" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                                </div>
+                            </div>
+
+                            <!-- Nome em PT e EN -->
+                            <div class="grid sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-gray-300 mb-1">Nome em Português 🇧🇷:</label>
+                                    <input type="text" value="${escapeHtml(item.name?.pt || '')}" onchange="updateProductNestedField(${index}, 'name', 'pt', this.value)" placeholder="Ex: Caldo de Frango com Milho" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs sm:text-sm font-semibold text-white focus:outline-none focus:border-amber-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-gray-300 mb-1">Nome em Inglês 🇺🇸:</label>
+                                    <input type="text" value="${escapeHtml(item.name?.en || '')}" onchange="updateProductNestedField(${index}, 'name', 'en', this.value)" placeholder="Ex: Chicken & Corn Chowder" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs sm:text-sm font-semibold text-white focus:outline-none focus:border-amber-500">
+                                </div>
+                            </div>
+
+                            <!-- Descrição em PT e EN -->
+                            <div class="grid sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-gray-300 mb-1">Descrição em Português 🇧🇷:</label>
+                                    <textarea rows="3" onchange="updateProductNestedField(${index}, 'description', 'pt', this.value)" placeholder="Descreva os ingredientes..." class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-amber-500">${escapeHtml(item.description?.pt || '')}</textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-gray-300 mb-1">Descrição em Inglês 🇺🇸:</label>
+                                    <textarea rows="3" onchange="updateProductNestedField(${index}, 'description', 'en', this.value)" placeholder="Describe the ingredients..." class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-amber-500">${escapeHtml(item.description?.en || '')}</textarea>
+                                </div>
+                            </div>
+
+                            <!-- Acompanhamentos -->
+                            <div class="grid sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[11px] text-gray-400 mb-1">Acompanhamentos (PT):</label>
+                                    <input type="text" value="${escapeHtml(item.extra?.pt || '')}" onchange="updateProductNestedField(${index}, 'extra', 'pt', this.value)" placeholder="Ex: Acompanha torradas e cheiro-verde" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] text-gray-400 mb-1">Acompanhamentos (EN):</label>
+                                    <input type="text" value="${escapeHtml(item.extra?.en || '')}" onchange="updateProductNestedField(${index}, 'extra', 'en', this.value)" placeholder="Ex: Includes artisan toast and fresh herbs" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Atualizar campo simples do produto
+        function updateProductField(index, field, value) {
+            if (products[index]) {
+                products[index][field] = value;
+                if (field === 'image') {
+                    const img = document.getElementById(`preview-img-${index}`);
+                    if (img) img.src = value;
+                }
+            }
+        }
+
+        // Atualizar campo aninhado (ex: name.pt, description.en)
+        function updateProductNestedField(index, parentField, subField, value) {
+            if (products[index]) {
+                if (!products[index][parentField]) products[index][parentField] = {};
+                products[index][parentField][subField] = value;
+            }
+        }
+
+        // Upload de imagem local
+        async function uploadImageForProduct(index, input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+
+            showToast('Enviando foto...', 'warning');
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const base64 = e.target.result;
+
+                // Tentar enviar para o endpoint /api/upload
+                try {
+                    const res = await fetch('/api/upload', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ filename: file.name, base64: base64 })
+                    });
+                    const data = await res.json();
+                    if (data.success && data.url) {
+                        products[index].image = data.url;
+                        const preview = document.getElementById(`preview-img-${index}`);
+                        if (preview) preview.src = data.url;
+                        renderProductCards();
+                        showToast('✅ Foto enviada e atualizada com sucesso!');
+                        return;
+                    }
+                } catch (err) {
+                    console.warn('API de upload não disponível, usando dataURL direto:', err);
+                }
+
+                // Fallback: usar o próprio base64
+                products[index].image = base64;
+                const preview = document.getElementById(`preview-img-${index}`);
+                if (preview) preview.src = base64;
+                renderProductCards();
+                showToast('✅ Foto carregada localmente!');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Adicionar novo caldo
+        function addNewProduct() {
+            const newId = 'caldo-' + Date.now();
+            products.push({
+                id: newId,
+                badge: {
+                    pt: "Novidade",
+                    en: "New Flavor"
+                },
+                badgeColor: "bg-emerald-600",
+                badgeIcon: "fa-fire",
+                name: {
+                    pt: "Novo Caldo Especial",
+                    en: "Special Soup"
+                },
+                description: {
+                    pt: "Delicioso caldo caseiro quentinho preparado no capricho.",
+                    en: "Delicious piping hot homemade soup prepared with care."
+                },
+                extra: {
+                    pt: "Acompanha torradas e cheiro-verde",
+                    en: "Includes toast and fresh herbs"
+                },
+                price: 20,
+                image: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80",
+                imageFallback: "https://placehold.co/800x600/261c16/f39c12?text=Novo+Caldo",
+                active: true
+            });
+            renderProductCards();
+            showToast('Novo caldo adicionado! Preencha as informações e clique em Salvar.', 'success');
+
+            // Rolar até o novo item
+            setTimeout(() => {
+                const el = document.getElementById(`card-${products.length - 1}`);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+
+        // Mover produto na ordem
+        function moveProduct(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= products.length) return;
+            const temp = products[index];
+            products[index] = products[newIndex];
+            products[newIndex] = temp;
+            renderProductCards();
+        }
+
+        // Alternar visibilidade
+        function toggleProductActive(index) {
+            if (products[index]) {
+                products[index].active = !products[index].active;
+                renderProductCards();
+                showToast(products[index].active ? 'Caldo visível no cardápio.' : 'Caldo ocultado do cardápio.', 'warning');
+            }
+        }
+
+        // Excluir produto
+        function deleteProduct(index) {
+            const nome = products[index]?.name?.pt || 'este caldo';
+            if (confirm(`Tem certeza que deseja remover "${nome}"?`)) {
+                products.splice(index, 1);
+                renderProductCards();
+                showToast('Caldo removido!', 'warning');
+            }
+        }
+
+        // Salvar tudo no backend e no localStorage
+        async function saveAllProducts() {
+            const btn = document.getElementById('btn-save-all');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Salvando...`;
+            }
+
+            try {
+                // Salvar no localStorage de backup
+                localStorage.setItem('sabor_mineiro_custom_products', JSON.stringify(products));
+
+                // Enviar para o servidor
+                const res = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(products)
+                });
+
+                if (!res.ok) throw new Error('Servidor retornou erro ao salvar');
+
+                showToast('✅ Cardápio salvo com sucesso!', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('⚠️ Salvo apenas localmente no celular.', 'warning');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações`;
+                }
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', loadProducts);
+    </script>
+</body>
+</html>
+

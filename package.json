@@ -1,0 +1,19 @@
+{
+  "name": "sabor-mineiro-ack",
+  "version": "1.0.0",
+  "description": "Cardápio digital e sistema de pedidos via WhatsApp para caldos artesanais em Nantucket Island, MA.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "serve": "npx -y serve . -l 3000"
+  },
+  "keywords": [
+    "cardapio-digital",
+    "caldos-mineiros",
+    "nantucket",
+    "whatsapp-order"
+  ],
+  "author": "Sabor Mineiro ACK",
+  "license": "MIT"
+}

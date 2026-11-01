@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Sabor Mineiro ACK | Caldos no Capricho em Nantucket</title>
+    <meta name="description" content="Caldos mineiros artesanais entregues quentinhos em toda a ilha de Nantucket. Caldo de Frango com Milho e Caldo de Mandioca Especial. Peça pelo WhatsApp!">
+    <meta name="theme-color" content="#0f0c0a">
+    <meta property="og:title" content="Sabor Mineiro ACK | Caldos no Capricho em Nantucket">
+    <meta property="og:description" content="O autêntico sabor de Minas Gerais em Nantucket. Caldos cremosos e quentinhos entregues na sua casa.">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        amber: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        brand: {
+                            dark: '#0f0c0a',
+                            card: '#1a1410',
+                            accent: '#e65c00',
+                            gold: '#f39c12',
+                            warm: '#261c16',
+                            glass: 'rgba(26, 20, 16, 0.75)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Estilos Customizados -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="relative min-h-screen selection:bg-amber-500 selection:text-white">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Efeito de Neve Embutido -->
+    <canvas id="snowCanvas" class="snowflakes" aria-hidden="true"></canvas>
+
+    <!-- Cabeçalho -->
+    <header id="main-header" class="fixed top-0 left-0 w-full z-50 glass-panel border-b border-white/10 px-4 lg:px-8 py-3 transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="#" class="flex items-center space-x-2 sm:space-x-3 no-underline min-w-0 mr-3">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-amber-600 to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/30 flex-shrink-0">
+                    <i class="fa-solid font-bold text-white text-base sm:text-lg fa-bowl-food"></i>
+                </div>
+                <div class="min-w-0">
+                    <h1 class="text-sm sm:text-lg md:text-xl font-extrabold tracking-tight text-white flex items-center gap-1">
+                        <span class="truncate">Sabor Mineiro</span> <span class="text-amber-500 font-serif italic flex-shrink-0">ACK</span>
+                    </h1>
+                    <p class="text-[9px] sm:text-[10px] md:text-xs text-amber-200/70 font-medium tracking-wider uppercase truncate" data-i18n="header_tagline">Nantucket, MA 🇺🇸 🇧🇷</p>
+                </div>
+            </a>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Seletor de Idioma com Bandeiras -->
+                <div class="lang-switcher" role="group" aria-label="Language">
+                    <button id="lang-pt" class="lang-btn active" onclick="switchLanguage('pt')" aria-pressed="true" title="Português">
+                        <img class="flag-img" src="https://flagcdn.com/w40/br.png" alt="BR" width="20" height="14">
+                        <span class="lang-label">PT</span>
+                    </button>
+                    <button id="lang-en" class="lang-btn" onclick="switchLanguage('en')" aria-pressed="false" title="English">
+                        <img class="flag-img" src="https://flagcdn.com/w40/us.png" alt="US" width="20" height="14">
+                        <span class="lang-label">EN</span>
+                    </button>
+                </div>
+
+                <a href="#cardapio" id="header-cta" class="relative flex items-center gap-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-semibold text-xs md:text-sm px-3 sm:px-4 py-2 rounded-full shadow-lg transition duration-200">
+                    <i class="fa-solid fa-utensils"></i>
+                    <span class="hidden xs:inline" data-i18n="nav_order_btn">Fazer Pedido</span>
+                    <span class="xs:hidden" data-i18n="nav_order_short">Pedir</span>
+                    <span id="cart-badge" class="cart-badge">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative pt-28 pb-16 sm:pt-32 sm:pb-20 md:pt-40 md:pb-28 px-4 overflow-hidden z-10">
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-72 sm:w-96 h-72 sm:h-96 bg-orange-600/20 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+        <div class="absolute top-1/3 right-10 w-48 sm:w-72 h-48 sm:h-72 bg-amber-500/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+
+        <div class="max-w-6xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px] sm:text-xs md:text-sm font-medium mb-5 sm:mb-6 animate-pulse">
+                <i class="fa-solid fa-snowflake"></i>
+                <span data-i18n="hero_tag">O Aconchego Mineiro no Inverno de Nantucket</span>
+                <i class="fa-solid fa-heart text-red-400 text-xs"></i>
+            </div>
+
+            <h2 class="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-5 sm:mb-6 leading-[1.15]">
+                <span data-i18n="hero_title_prefix">O sabor de Minas que</span> <br class="hidden sm:inline">
+                <span class="text-gradient font-serif italic font-normal" data-i18n="hero_title_highlight">aquece o seu inverno</span> <br class="sm:hidden"><span data-i18n="hero_title_suffix">na ilha!</span>
+            </h2>
+
+            <p class="max-w-2xl mx-auto text-gray-300 text-sm sm:text-base md:text-lg mb-7 sm:mb-8 leading-relaxed px-2" data-i18n="hero_desc">
+                Caldos quentinhos, cremosos e preparados com o autêntico tempero caseiro mineiro. 
+                Entregamos no conforto da sua casa em toda a ilha de Nantucket.
+            </p>
+
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 max-w-md mx-auto">
+                <a href="#cardapio" class="w-full sm:w-auto glow-btn bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white font-bold text-sm sm:text-base px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl shadow-xl flex items-center justify-center gap-3 transition transform active:scale-95">
+                    <i class="fa-solid fa-fire text-amber-200"></i>
+                    <span data-i18n="hero_btn_menu">Ver Caldos & Encomendar</span>
+                </a>
+                <a href="#entregas" class="w-full sm:w-auto bg-white/5 hover:bg-white/10 text-gray-200 border border-white/10 font-semibold text-sm sm:text-base px-5 sm:px-6 py-3.5 sm:py-4 rounded-xl flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-truck-fast text-amber-400"></i>
+                    <span data-i18n="hero_btn_delivery">Taxa & Entregas</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto mt-10 sm:mt-14 pt-8 sm:pt-10 border-t border-white/10">
+                <div class="flex flex-col items-center p-2 sm:p-3">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-2">
+                        <i class="fa-solid fa-pepper-hot text-amber-500 text-lg sm:text-2xl"></i>
+                    </div>
+                    <span class="text-[10px] sm:text-xs text-gray-400" data-i18n="stat_seasoning_label">Tempero Autêntico</span>
+                    <span class="text-xs sm:text-sm font-bold text-white" data-i18n="stat_seasoning_val">100% Caseiro</span>
+                </div>
+                <div class="flex flex-col items-center p-2 sm:p-3">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-2">
+                        <i class="fa-solid fa-temperature-arrow-up text-amber-500 text-lg sm:text-2xl"></i>
+                    </div>
+                    <span class="text-[10px] sm:text-xs text-gray-400" data-i18n="stat_delivery_label">Entrega Super</span>
+                    <span class="text-xs sm:text-sm font-bold text-white" data-i18n="stat_delivery_val">Quentinho</span>
+                </div>
+                <div class="flex flex-col items-center p-2 sm:p-3">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-2">
+                        <i class="fa-solid fa-dollar-sign text-amber-500 text-lg sm:text-2xl"></i>
+                    </div>
+                    <span class="text-[10px] sm:text-xs text-gray-400" data-i18n="stat_price_label">Preço Fixo</span>
+                    <span class="text-xs sm:text-sm font-bold text-white" data-i18n="stat_price_val">$20.00 USD cada</span>
+                </div>
+                <div class="flex flex-col items-center p-2 sm:p-3">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-2">
+                        <i class="fa-solid fa-house-chimney text-amber-500 text-lg sm:text-2xl"></i>
+                    </div>
+                    <span class="text-[10px] sm:text-xs text-gray-400" data-i18n="stat_coverage_label">Atendimento na</span>
+                    <span class="text-xs sm:text-sm font-bold text-white" data-i18n="stat_coverage_val">Ilha de Nantucket</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Divider -->
+    <div class="divider-glow max-w-4xl mx-auto"></div>
+
+    <!-- Seção de Cardápio / Produtos -->
+    <section id="cardapio" class="py-12 sm:py-16 px-4 relative z-10 max-w-6xl mx-auto">
+        <div class="text-center mb-8 sm:mb-12">
+            <h2 class="text-xs font-bold uppercase tracking-widest text-amber-500 mb-2" data-i18n="menu_subtitle">Nosso Cardápio Especial</h2>
+            <h3 class="text-2xl sm:text-3xl md:text-5xl font-extrabold text-white" data-i18n="menu_title">Escolha os Seus Caldos</h3>
+            <p class="text-gray-400 mt-3 max-w-xl mx-auto text-xs sm:text-sm md:text-base px-2" data-i18n="menu_desc">
+                Porções generosas e encorpadas preparadas diariamente no capricho. Cada caldo acompanha torradinha crocante.
+            </p>
+        </div>
+
+        <div id="products-grid" class="grid md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
+            <!-- Item 1: Caldo de Frango -->
+            <div class="glass-card rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col justify-between" id="card-frango">
+                <div>
+                    <div class="relative h-48 sm:h-64 overflow-hidden group">
+                        <div class="absolute inset-0 img-skeleton"></div>
+                        <img src="https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80" 
+                             alt="Caldo de Frango com Milho - cremoso e quentinho" 
+                             class="w-full h-full object-cover transition duration-500 group-hover:scale-105 relative z-[1]"
+                             loading="lazy"
+                             onerror="this.src='https://placehold.co/800x600/261c16/f39c12?text=Caldo+de+Frango'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-[2]"></div>
+                        <span class="absolute top-3 sm:top-4 left-3 sm:left-4 bg-orange-600 text-white font-bold text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg uppercase tracking-wider z-[3]">
+                            <i class="fa-solid fa-star mr-1"></i> <span data-i18n="badge_frango">Favorito da Casa</span>
+                        </span>
+                        <div class="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 bg-black/60 backdrop-blur-md px-2.5 sm:px-3 py-1 rounded-lg border border-white/10 text-amber-400 font-bold text-lg sm:text-xl z-[3]">
+                            $20 <span class="text-[10px] sm:text-xs font-normal text-gray-300">USD</span>
+                        </div>
+                    </div>
+                    <div class="p-5 sm:p-6 md:p-8">
+                        <h4 class="text-xl sm:text-2xl font-bold text-white mb-3" data-i18n="dish_frango_name">Caldo de Frango com Milho</h4>
+                        <p class="text-gray-300 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6" data-i18n="dish_frango_desc">
+                            Frango desfiado suculento, caldo super cremoso de milho verde fresco, milho inteiro, cheiro-verde e temperos especiais de Minas Gerais. Perfeito para aquecer os dias frios.
+                        </p>
+                        <div class="flex items-start gap-2 text-[11px] sm:text-xs text-amber-300 bg-amber-500/10 p-2.5 sm:p-3 rounded-xl mb-4 sm:mb-6 border border-amber-500/20">
+                            <i class="fa-solid fa-circle-check text-amber-400 mt-0.5 flex-shrink-0"></i>
+                            <span data-i18n="dish_frango_extra">Acompanha cheiro-verde e torradas artesanais quentinhas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-5 sm:px-6 md:px-8 pb-5 sm:pb-6 pt-3 border-t border-white/5 flex items-center justify-between bg-black/20">
+                    <span class="text-xs sm:text-sm text-gray-400 font-medium" data-i18n="qty_frango_label">Quantidade:</span>
+                    <div class="flex items-center space-x-2 sm:space-x-3 bg-brand-dark/80 p-1 sm:p-1.5 rounded-xl border border-white/10">
+                        <button onclick="updateQty('frango', -1)" aria-label="Remover 1 caldo de frango" class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-white/5 hover:bg-amber-600/30 text-amber-400 flex items-center justify-center font-bold text-lg transition active:scale-90 touch-manipulation">
+                            <i class="fa-solid fa-minus text-xs"></i>
+                        </button>
+                        <span id="qty-frango" class="w-8 text-center font-bold text-lg text-white select-none">0</span>
+                        <button onclick="updateQty('frango', 1)" aria-label="Adicionar 1 caldo de frango" class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-amber-600 hover:bg-amber-500 text-white flex items-center justify-center font-bold text-lg transition active:scale-90 touch-manipulation">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item 2: Caldo de Mandioca -->
+            <div class="glass-card rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col justify-between" id="card-mandioca">
+                <div>
+                    <div class="relative h-48 sm:h-64 overflow-hidden group">
+                        <div class="absolute inset-0 img-skeleton"></div>
+                        <img src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80" 
+                             alt="Caldo de Mandioca Especial - aveludado e cremoso" 
+                             class="w-full h-full object-cover transition duration-500 group-hover:scale-105 relative z-[1]"
+                             loading="lazy"
+                             onerror="this.src='https://placehold.co/800x600/261c16/f39c12?text=Caldo+de+Mandioca'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-[2]"></div>
+                        <span class="absolute top-3 sm:top-4 left-3 sm:left-4 bg-amber-600 text-white font-bold text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg uppercase tracking-wider z-[3]">
+                            <i class="fa-solid fa-crown mr-1"></i> <span data-i18n="badge_mandioca">Tradicional Mineiro</span>
+                        </span>
+                        <div class="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 bg-black/60 backdrop-blur-md px-2.5 sm:px-3 py-1 rounded-lg border border-white/10 text-amber-400 font-bold text-lg sm:text-xl z-[3]">
+                            $20 <span class="text-[10px] sm:text-xs font-normal text-gray-300">USD</span>
+                        </div>
+                    </div>
+                    <div class="p-5 sm:p-6 md:p-8">
+                        <h4 class="text-xl sm:text-2xl font-bold text-white mb-3" data-i18n="dish_mandioca_name">Caldo de Mandioca Especial</h4>
+                        <p class="text-gray-300 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6" data-i18n="dish_mandioca_desc">
+                            Mandioca selecionada extremamente aveludada, cozida lentamente com temperos caseiros, refogado de alho, cebola, bacon e cheiro-verde. Sabor marcante e inesquecível!
+                        </p>
+                        <div class="flex items-start gap-2 text-[11px] sm:text-xs text-amber-300 bg-amber-500/10 p-2.5 sm:p-3 rounded-xl mb-4 sm:mb-6 border border-amber-500/20">
+                            <i class="fa-solid fa-circle-check text-amber-400 mt-0.5 flex-shrink-0"></i>
+                            <span data-i18n="dish_mandioca_extra">Acompanha torresmo / cheiro-verde e torradas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="px-5 sm:px-6 md:px-8 pb-5 sm:pb-6 pt-3 border-t border-white/5 flex items-center justify-between bg-black/20">
+                    <span class="text-xs sm:text-sm text-gray-400 font-medium" data-i18n="qty_mandioca_label">Quantidade:</span>
+                    <div class="flex items-center space-x-2 sm:space-x-3 bg-brand-dark/80 p-1 sm:p-1.5 rounded-xl border border-white/10">
+                        <button onclick="updateQty('mandioca', -1)" aria-label="Remover 1 caldo de mandioca" class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-white/5 hover:bg-amber-600/30 text-amber-400 flex items-center justify-center font-bold text-lg transition active:scale-90 touch-manipulation">
+                            <i class="fa-solid fa-minus text-xs"></i>
+                        </button>
+                        <span id="qty-mandioca" class="w-8 text-center font-bold text-lg text-white select-none">0</span>
+                        <button onclick="updateQty('mandioca', 1)" aria-label="Adicionar 1 caldo de mandioca" class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-amber-600 hover:bg-amber-500 text-white flex items-center justify-center font-bold text-lg transition active:scale-90 touch-manipulation">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Checkout / WhatsApp Direct -->
+        <div class="mt-8 sm:mt-12 glass-panel p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-amber-500/30 shadow-2xl relative overflow-hidden" id="checkout-section">
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-orange-500/10 rounded-full blur-2xl"></div>
+
+            <div class="grid lg:grid-cols-3 gap-5 sm:gap-6 items-start lg:items-center">
+                <div class="lg:col-span-2 space-y-3 sm:space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 sm:p-2.5 bg-amber-500/20 text-amber-400 rounded-xl flex-shrink-0">
+                            <i class="fa-solid fa-receipt text-lg sm:text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg sm:text-xl font-bold text-white" data-i18n="checkout_title">Resumo do Seu Pedido</h3>
+                            <p class="text-[11px] sm:text-xs text-gray-400" data-i18n="checkout_subtitle">Selecione as quantidades e preencha seus dados para liberar o envio pelo WhatsApp.</p>
+                        </div>
+                    </div>
+
+                    <div id="cart-summary" class="text-xs sm:text-sm text-gray-300 bg-black/30 p-3 sm:p-4 rounded-xl border border-white/5 min-h-[48px]">
+                        <div class="text-gray-400 italic text-xs sm:text-sm" data-i18n="cart_empty">Nenhum caldo selecionado ainda. Clique em + acima para adicionar.</div>
+                    </div>
+
+                    <div class="grid sm:grid-cols-2 gap-3 pt-1 sm:pt-2">
+                        <div>
+                            <label for="customer-name" class="block text-[11px] sm:text-xs font-semibold text-gray-400 mb-1">
+                                <i class="fa-solid fa-user text-amber-400 mr-1"></i>
+                                <span data-i18n="customer_name_label">Seu Nome / Contato:</span>
+                                <span class="text-red-400 ml-0.5">*</span>
+                            </label>
+                            <input type="text" id="customer-name" data-i18n-placeholder="customer_name_placeholder" placeholder="Ex: Maria Silva" class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2.5 sm:py-2 text-sm text-white focus:outline-none focus:border-amber-500 placeholder-gray-500" required>
+                        </div>
+                        <div>
+                            <label for="customer-address" class="block text-[11px] sm:text-xs font-semibold text-gray-400 mb-1">
+                                <i class="fa-solid fa-location-dot text-amber-400 mr-1"></i>
+                                <span data-i18n="customer_address_label">Endereço de Entrega (Nantucket):</span>
+                                <span class="text-red-400 ml-0.5">*</span>
+                            </label>
+                            <input type="text" id="customer-address" data-i18n-placeholder="customer_address_placeholder" placeholder="Ex: 12 Pleasant St, Nantucket" class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2.5 sm:py-2 text-sm text-white focus:outline-none focus:border-amber-500 placeholder-gray-500" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col justify-center items-center lg:border-l lg:border-white/10 lg:pl-6 pt-3 sm:pt-4 lg:pt-0">
+                    <div class="text-center mb-3 sm:mb-4">
+                        <span class="text-[10px] sm:text-xs text-gray-400 uppercase tracking-widest font-semibold" data-i18n="total_price_label">Valor Total</span>
+                        <div class="text-3xl sm:text-4xl font-extrabold text-gradient-gold mt-1">
+                            $<span id="total-price">0</span>.00 <span class="text-[10px] sm:text-xs text-gray-300 font-normal">USD</span>
+                        </div>
+                    </div>
+
+                    <button onclick="sendWhatsAppOrder()" id="btn-whatsapp-order" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm sm:text-base px-5 sm:px-6 py-3.5 sm:py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2 sm:gap-3 transition transform active:scale-95 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <i class="fa-brands fa-whatsapp text-xl sm:text-2xl"></i>
+                        <span data-i18n="btn_send_order">Enviar Pedido via WhatsApp</span>
+                    </button>
+                    <!-- Aviso dinâmico de validação -->
+                    <div id="order-hint" class="order-hint order-hint--warning">Adicione pelo menos 1 caldo ao carrinho acima.</div>
+                    <p class="text-[10px] sm:text-[11px] text-gray-400 text-center mt-2 sm:mt-3">
+                        <i class="fa-solid fa-lock text-amber-400"></i> <span data-i18n="whatsapp_note">Pedido direto no número: (772) 940-3676</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Entregas -->
+    <section id="entregas" class="py-12 sm:py-16 px-4 relative z-10 bg-black/40 border-y border-white/5">
+        <div class="max-w-6xl mx-auto">
+            <div class="glass-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-12 relative overflow-hidden">
+                <div class="grid md:grid-cols-2 gap-6 sm:gap-8 items-center">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold mb-3 sm:mb-4">
+                            <i class="fa-solid fa-truck-ramp-box"></i> <span data-i18n="delivery_tag">Delivery em Nantucket</span>
+                        </div>
+                        <h3 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-3 sm:mb-4 leading-tight" data-i18n="delivery_title">
+                            Fazemos entregas em toda a ilha de Nantucket! 🚚
+                        </h3>
+                        <p class="text-gray-300 text-xs sm:text-sm md:text-base leading-relaxed mb-4 sm:mb-6" data-i18n="delivery_desc">
+                            Não importa se você está no centro (Town), Mid-Island, Siasconset ou Madaket — nós levamos os caldos fervendo até a porta da sua casa com embalagens térmicas especiais.
+                        </p>
+                        
+                        <ul class="space-y-2.5 sm:space-y-3 text-xs sm:text-sm text-gray-300 mb-4 sm:mb-6">
+                            <li class="flex items-start sm:items-center gap-2.5 sm:gap-3">
+                                <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs flex-shrink-0 mt-0.5 sm:mt-0">✓</span>
+                                <span data-i18n="delivery_item_1">Embalagens seladas térmicas que mantêm o calor por muito tempo</span>
+                            </li>
+                            <li class="flex items-start sm:items-center gap-2.5 sm:gap-3">
+                                <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs flex-shrink-0 mt-0.5 sm:mt-0">✓</span>
+                                <span data-i18n="delivery_item_2">Entregas rápidas e com total higiene</span>
+                            </li>
+                            <li class="flex items-start sm:items-center gap-2.5 sm:gap-3">
+                                <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs flex-shrink-0 mt-0.5 sm:mt-0">✓</span>
+                                <span data-i18n="delivery_item_3">Pagamentos facilitados (Zelle, Cash, Venmo ou Card)</span>
+                            </li>
+                        </ul>
+
+                        <!-- Métodos de pagamento visuais -->
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] sm:text-xs text-gray-300 font-medium">
+                                <i class="fa-solid fa-money-bill text-emerald-400"></i> Cash
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] sm:text-xs text-gray-300 font-medium">
+                                <i class="fa-solid fa-bolt text-purple-400"></i> Zelle
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] sm:text-xs text-gray-300 font-medium">
+                                <i class="fa-solid fa-v text-blue-400"></i> Venmo
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] sm:text-xs text-gray-300 font-medium">
+                                <i class="fa-solid fa-credit-card text-amber-400"></i> Card
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="relative flex justify-center">
+                        <div class="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl max-w-md w-full">
+                            <div class="absolute inset-0 img-skeleton"></div>
+                            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80" 
+                                 alt="Nantucket Island no inverno" 
+                                 class="w-full h-56 sm:h-72 object-cover relative z-[1]"
+                                 loading="lazy"
+                                 onerror="this.src='https://placehold.co/600x400/1a1410/ffffff?text=Nantucket+Island'">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent z-[2]"></div>
+                            <div class="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4 text-center z-[3]">
+                                <span class="text-[10px] sm:text-xs text-amber-300 font-serif italic" data-i18n="delivery_img_tag">Nantucket Island, MA</span>
+                                <p class="text-white font-bold text-xs sm:text-sm" data-i18n="delivery_img_caption">O calor de Minas no inverno norte-americano</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer class="py-8 sm:py-10 px-4 bg-black border-t border-white/10 relative z-10 text-center md:text-left">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-6 sm:gap-8 items-center">
+            <div>
+                <h3 class="text-lg sm:text-xl font-extrabold text-white flex items-center justify-center md:justify-start gap-2">
+                    Sabor Mineiro <span class="text-amber-500 font-serif italic">ACK</span>
+                </h3>
+                <p class="text-[11px] sm:text-xs text-gray-400 mt-2" data-i18n="footer_brand_subtitle">Caldos no Capricho de Nantucket 🇺🇸 🇧🇷</p>
+            </div>
+
+            <div class="text-center">
+                <p class="text-[11px] sm:text-xs text-gray-400" data-i18n="footer_contact_label">Atendimento e Pedidos Rápidos:</p>
+                <a href="https://wa.me/17729403676" target="_blank" rel="noopener noreferrer" class="text-amber-400 font-bold text-sm sm:text-base hover:underline inline-flex items-center gap-2 mt-1">
+                    <i class="fa-brands fa-whatsapp"></i> (772) 940-3676
+                </a>
+            </div>
+
+            <div class="text-center md:text-right">
+                <p class="text-[11px] sm:text-xs text-gray-500" data-i18n="footer_copyright">© 2026 Sabor Mineiro ACK. Todos os direitos reservados.</p>
+                <p class="text-[10px] sm:text-[11px] text-gray-600 mt-1" data-i18n="footer_island">Entregas em toda a ilha de Nantucket, MA.</p>
+                <a href="admin.html" class="inline-flex items-center gap-1.5 text-[11px] text-amber-500/70 hover:text-amber-400 mt-2 transition">
+                    <i class="fa-solid fa-gear text-[10px]"></i>
+                    <span>Gerenciar Cardápio & Fotos</span>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts da Aplicação Modularizados -->
+    <script src="js/i18n.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/snow.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+</html>
