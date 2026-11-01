@@ -529,9 +529,10 @@ function sendWhatsAppOrder() {
         message += `\n*TOTAL:* $${totalPrice}.00 USD\n`;
         message += `*Customer:* ${name}\n`;
         message += `*Delivery Address:* ${address} (Nantucket)\n`;
-        if (customerLocation && customerLocation.mapUrl) {
-            message += `📍 *GPS Location (Google Maps):* ${customerLocation.mapUrl}\n`;
-        }
+        const mapUrl = (customerLocation && customerLocation.mapUrl)
+            ? customerLocation.mapUrl
+            : `https://maps.google.com/?q=${encodeURIComponent(address + ', Nantucket, MA')}`;
+        message += `📍 *Google Maps (GPS / Rota):* ${mapUrl}\n`;
         message += `\n_Awaiting confirmation and estimated delivery time!_`;
     } else {
         message = `*Olá! Gostaria de fazer um pedido no Sabor Mineiro ACK!*\n\n`;
@@ -546,9 +547,10 @@ function sendWhatsAppOrder() {
         message += `\n*VALOR TOTAL:* $${totalPrice}.00 USD\n`;
         message += `*Cliente:* ${name}\n`;
         message += `*Endereço para entrega:* ${address} (Nantucket)\n`;
-        if (customerLocation && customerLocation.mapUrl) {
-            message += `📍 *Localização GPS (Google Maps):* ${customerLocation.mapUrl}\n`;
-        }
+        const mapUrl = (customerLocation && customerLocation.mapUrl)
+            ? customerLocation.mapUrl
+            : `https://maps.google.com/?q=${encodeURIComponent(address + ', Nantucket, MA')}`;
+        message += `📍 *Google Maps (GPS / Rota):* ${mapUrl}\n`;
         message += `\n_Aguardando confirmação e tempo estimado de entrega!_`;
     }
 
