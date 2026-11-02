@@ -70,4 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof initLanguage === 'function') {
         initLanguage();
     }
+
+    // 7. Inicializar sistema de avaliações dos clientes
+    if (typeof initReviews === 'function') {
+        initReviews();
+    }
 });

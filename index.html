@@ -47,7 +47,7 @@
         }
     </script>
     <!-- Estilos Customizados -->
-    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body class="relative min-h-screen selection:bg-amber-500 selection:text-white">
 
@@ -405,6 +405,120 @@
         </div>
     </section>
 
+    <!-- Divisor -->
+    <div class="divider-glow max-w-4xl mx-auto"></div>
+
+    <!-- Seção de Avaliações dos Clientes -->
+    <section id="avaliacoes" class="py-12 sm:py-16 px-4 relative z-10 max-w-6xl mx-auto">
+        <!-- Cabeçalho da Seção -->
+        <div class="text-center max-w-2xl mx-auto mb-10">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-3" data-i18n="reviews_section_tag">
+                <i class="fa-solid fa-star text-[10px]"></i> Opinião de Quem Provou
+            </span>
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-3" data-i18n="reviews_section_title">
+                Avaliações dos Nossos Clientes ⭐
+            </h2>
+            <p class="text-gray-400 text-xs sm:text-sm leading-relaxed" data-i18n="reviews_section_desc">
+                Veja o que as pessoas de Nantucket estão dizendo sobre os nossos caldos quentinhos artesanais!
+            </p>
+
+            <!-- Card de Média e Botão de Avaliar -->
+            <div class="mt-6 inline-flex flex-wrap items-center justify-center gap-3 sm:gap-6 bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-3.5 shadow-md">
+                <div class="flex items-center gap-2">
+                    <span id="reviews-avg-rating" class="text-2xl sm:text-3xl font-extrabold text-amber-400">5.0</span>
+                    <div class="text-left">
+                        <div id="reviews-avg-stars" class="text-amber-400 text-xs flex gap-0.5">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <span id="reviews-total-count" class="text-[11px] text-gray-400">(3 avaliações de clientes)</span>
+                    </div>
+                </div>
+
+                <div class="h-6 w-px bg-white/10 hidden sm:block"></div>
+
+                <button type="button" onclick="openReviewModal()" class="bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2 transform active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span data-i18n="reviews_btn_leave">Avaliar Meu Pedido</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Grid de Cards de Avaliações -->
+        <div id="reviews-grid" class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+            <!-- Preenchido via js/reviews.js -->
+        </div>
+    </section>
+
+    <!-- Modal de Avaliação do Pedido -->
+    <div id="review-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="glass-card rounded-2xl max-w-lg w-full p-6 border border-amber-500/30 shadow-2xl relative animate-fade-in-up">
+            <!-- Botão Fechar -->
+            <button type="button" onclick="closeReviewModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-gray-400 hover:text-white flex items-center justify-center transition cursor-pointer">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+
+            <!-- Cabeçalho do Modal -->
+            <div class="text-center mb-5">
+                <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xl mx-auto mb-2">
+                    <i class="fa-solid fa-star"></i>
+                </div>
+                <h3 class="text-lg sm:text-xl font-bold text-white" data-i18n="reviews_modal_title">Avaliar Meu Pedido</h3>
+                <p class="text-xs text-gray-400 mt-1" data-i18n="reviews_modal_subtitle">Compartilhe sua experiência com os caldos do Sabor Mineiro!</p>
+            </div>
+
+            <!-- Formulário -->
+            <form id="review-form" onsubmit="submitCustomerReview(event)" class="space-y-4">
+                <!-- Seletor de Estrelas Interativo -->
+                <div class="text-center py-2.5 px-3 bg-black/40 rounded-xl border border-white/5">
+                    <label class="block text-xs font-semibold text-gray-300 mb-1" data-i18n="reviews_form_rating">Sua Nota:</label>
+                    <div class="flex items-center justify-center gap-2 text-2xl py-1">
+                        <button type="button" onclick="setStarRating(1)" class="review-star-btn p-1 transition hover:scale-125 focus:outline-none" aria-label="1 estrela"><i class="fa-solid fa-star text-amber-400"></i></button>
+                        <button type="button" onclick="setStarRating(2)" class="review-star-btn p-1 transition hover:scale-125 focus:outline-none" aria-label="2 estrelas"><i class="fa-solid fa-star text-amber-400"></i></button>
+                        <button type="button" onclick="setStarRating(3)" class="review-star-btn p-1 transition hover:scale-125 focus:outline-none" aria-label="3 estrelas"><i class="fa-solid fa-star text-amber-400"></i></button>
+                        <button type="button" onclick="setStarRating(4)" class="review-star-btn p-1 transition hover:scale-125 focus:outline-none" aria-label="4 estrelas"><i class="fa-solid fa-star text-amber-400"></i></button>
+                        <button type="button" onclick="setStarRating(5)" class="review-star-btn p-1 transition hover:scale-125 focus:outline-none" aria-label="5 estrelas"><i class="fa-solid fa-star text-amber-400"></i></button>
+                    </div>
+                    <span id="review-rating-label" class="text-xs font-medium text-amber-400">5 estrelas - Maravilhoso / Sensacional! ⭐⭐⭐⭐⭐</span>
+                </div>
+
+                <!-- Campo Nome -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1" data-i18n="reviews_form_name">Seu Nome:</label>
+                    <input type="text" id="review-name" required maxlength="80" 
+                           placeholder="Ex: Maria Silva" data-i18n-placeholder="reviews_form_name_placeholder"
+                           class="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition">
+                </div>
+
+                <!-- Campo Qual Caldo -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1" data-i18n="reviews_form_dish">Qual caldo você pediu?</label>
+                    <select id="review-dish" class="w-full bg-[#1a1410] border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500 transition cursor-pointer">
+                        <!-- Opções preenchidas dinamicamente -->
+                    </select>
+                </div>
+
+                <!-- Campo Comentário -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1" data-i18n="reviews_form_comment">Seu Comentário:</label>
+                    <textarea id="review-comment" required rows="3" maxlength="600"
+                              placeholder="Conte o que achou do sabor, da entrega quentinha e das torradinhas..." data-i18n-placeholder="reviews_form_comment_placeholder"
+                              class="w-full bg-white/5 border border-white/10 rounded-xl px-3.5 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition resize-none"></textarea>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="flex items-center justify-end gap-2.5 pt-2">
+                    <button type="button" onclick="closeReviewModal()" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 transition cursor-pointer" data-i18n="reviews_btn_cancel">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btn-submit-review" class="bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-lg transition flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span data-i18n="reviews_btn_submit">Enviar Avaliação</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Rodapé -->
     <footer class="py-8 sm:py-10 px-4 bg-black border-t border-white/10 relative z-10 text-center md:text-left">
         <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-6 sm:gap-8 items-center">
@@ -434,10 +548,11 @@
     </footer>
 
     <!-- Scripts da Aplicação Modularizados -->
-    <script src="js/i18n.js?v=3"></script>
-    <script src="js/cart.js?v=3"></script>
-    <script src="js/snow.js?v=3"></script>
-    <script src="js/main.js?v=3"></script>
+    <script src="js/i18n.js?v=4"></script>
+    <script src="js/cart.js?v=4"></script>
+    <script src="js/reviews.js?v=4"></script>
+    <script src="js/snow.js?v=4"></script>
+    <script src="js/main.js?v=4"></script>
 
 </body>
 </html>

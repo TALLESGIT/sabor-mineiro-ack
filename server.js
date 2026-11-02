@@ -11,6 +11,7 @@ const { Pool } = require('pg');
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = __dirname;
 const PRODUCTS_FILE = path.join(PUBLIC_DIR, 'products.json');
+const REVIEWS_FILE = path.join(PUBLIC_DIR, 'reviews.json');
 const UPLOAD_DIR = path.join(PUBLIC_DIR, 'assets', 'images');
 
 if (!fs.existsSync(UPLOAD_DIR)) {
@@ -31,13 +32,14 @@ if (process.env.DATABASE_URL) {
 }
 
 /**
- * Inicializa a tabela no PostgreSQL e realiza seed se estiver vazia
+ * Inicializa as tabelas no PostgreSQL e realiza seed se estiverem vazias
  */
 async function initDatabase() {
     if (!pool) return;
     try {
         const client = await pool.connect();
         try {
+            // 1. Tabela de Cardápio
             await client.query(`
                 CREATE TABLE IF NOT EXISTS menu_config (
                     key VARCHAR(50) PRIMARY KEY,
@@ -61,6 +63,38 @@ async function initDatabase() {
                 console.log('✅ Tabela menu_config criada e populada com os caldos iniciais!');
             } else {
                 console.log('✅ PostgreSQL ativo! Cardápio carregado com sucesso do banco.');
+            }
+
+            // 2. Tabela de Avaliações dos Clientes
+            await client.query(`
+                CREATE TABLE IF NOT EXISTS customer_reviews (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(100) NOT NULL,
+                    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+                    dish VARCHAR(150),
+                    comment TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    approved BOOLEAN DEFAULT TRUE
+                );
+            `);
+
+            const revCheck = await client.query("SELECT COUNT(*) FROM customer_reviews");
+            if (parseInt(revCheck.rows[0].count) === 0) {
+                let initialReviews = [];
+                try {
+                    initialReviews = JSON.parse(fs.readFileSync(REVIEWS_FILE, 'utf8'));
+                } catch (e) {
+                    initialReviews = [];
+                }
+                for (const r of initialReviews) {
+                    await client.query(
+                        "INSERT INTO customer_reviews (name, rating, dish, comment, approved) VALUES ($1, $2, $3, $4, true)",
+                        [r.name, r.rating, r.dish, r.comment]
+                    );
+                }
+                console.log('✅ Tabela customer_reviews criada e populada com avaliações iniciais!');
+            } else {
+                console.log('✅ PostgreSQL: Tabela de avaliações pronta.');
             }
         } finally {
             client.release();
@@ -121,6 +155,107 @@ async function persistProducts(products) {
     return { savedInDB };
 }
 
+/**
+ * Busca as avaliações com nota média calculada
+ */
+async function fetchReviews() {
+    let list = [];
+    if (pool) {
+        try {
+            const res = await pool.query(
+                "SELECT id, name, rating, dish, comment, to_char(created_at, 'DD/MM/YYYY') as date_formatted FROM customer_reviews WHERE approved = true ORDER BY id DESC LIMIT 50"
+            );
+            list = res.rows;
+        } catch (err) {
+            console.error('⚠️ Erro ao consultar reviews no PostgreSQL:', err.message);
+        }
+    }
+
+    if (list.length === 0) {
+        try {
+            list = JSON.parse(fs.readFileSync(REVIEWS_FILE, 'utf8'));
+        } catch (e) {
+            list = [];
+        }
+    }
+
+    const count = list.length;
+    const avg = count > 0 
+        ? (list.reduce((acc, r) => acc + (Number(r.rating) || 5), 0) / count).toFixed(1)
+        : "5.0";
+
+    return {
+        reviews: list,
+        averageRating: avg,
+        totalCount: count
+    };
+}
+
+/**
+ * Adiciona uma nova avaliação enviada por cliente
+ */
+async function addReview({ name, rating, dish, comment }) {
+    const cleanRating = Math.max(1, Math.min(5, parseInt(rating) || 5));
+    const cleanName = (name || 'Cliente de Nantucket').trim().substring(0, 100);
+    const cleanDish = (dish || 'Caldo').trim().substring(0, 150);
+    const cleanComment = (comment || '').trim().substring(0, 1000);
+
+    if (pool) {
+        try {
+            const res = await pool.query(
+                "INSERT INTO customer_reviews (name, rating, dish, comment, approved) VALUES ($1, $2, $3, $4, true) RETURNING id",
+                [cleanName, cleanRating, cleanDish, cleanComment]
+            );
+            return { success: true, id: res.rows[0].id };
+        } catch (err) {
+            console.error('⚠️ Erro ao gravar review no PostgreSQL:', err.message);
+        }
+    }
+
+    try {
+        let list = JSON.parse(fs.readFileSync(REVIEWS_FILE, 'utf8'));
+        const newId = Date.now();
+        const now = new Date();
+        const dateFormatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+        list.unshift({
+            id: newId,
+            name: cleanName,
+            rating: cleanRating,
+            dish: cleanDish,
+            comment: cleanComment,
+            date_formatted: dateFormatted,
+            approved: true
+        });
+        fs.writeFileSync(REVIEWS_FILE, JSON.stringify(list, null, 4), 'utf8');
+        return { success: true, id: newId };
+    } catch (e) {
+        return { success: true };
+    }
+}
+
+/**
+ * Remove uma avaliação (admin)
+ */
+async function removeReview(id) {
+    if (pool) {
+        try {
+            await pool.query("DELETE FROM customer_reviews WHERE id = $1", [id]);
+            return { success: true };
+        } catch (err) {
+            console.error('⚠️ Erro ao deletar review do PostgreSQL:', err.message);
+        }
+    }
+
+    try {
+        let list = JSON.parse(fs.readFileSync(REVIEWS_FILE, 'utf8'));
+        list = list.filter(r => String(r.id) !== String(id));
+        fs.writeFileSync(REVIEWS_FILE, JSON.stringify(list, null, 4), 'utf8');
+        return { success: true };
+    } catch (e) {
+        return { success: false };
+    }
+}
+
 const MIME_TYPES = {
     '.html': 'text/html; charset=UTF-8',
     '.css': 'text/css; charset=UTF-8',
@@ -142,7 +277,7 @@ function sendJSON(res, statusCode, data) {
     res.writeHead(statusCode, {
         'Content-Type': 'application/json; charset=UTF-8',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type'
     });
     res.end(JSON.stringify(data));
@@ -150,7 +285,7 @@ function sendJSON(res, statusCode, data) {
 
 const server = http.createServer(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') {
@@ -163,7 +298,7 @@ const server = http.createServer(async (req, res) => {
     let pathname = decodeURIComponent(parsedUrl.pathname);
 
     // =========================================================================
-    // API: Obter lista de produtos (Lê do PostgreSQL)
+    // API: Obter lista de produtos (PostgreSQL)
     // =========================================================================
     if (pathname === '/api/products' && req.method === 'GET') {
         try {
@@ -175,7 +310,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // =========================================================================
-    // API: Salvar lista de produtos (Grava no PostgreSQL)
+    // API: Salvar lista de produtos (PostgreSQL)
     // =========================================================================
     if (pathname === '/api/products' && req.method === 'POST') {
         let body = '';
@@ -203,6 +338,60 @@ const server = http.createServer(async (req, res) => {
             }
         });
         return;
+    }
+
+    // =========================================================================
+    // API: Avaliações dos Clientes (GET)
+    // =========================================================================
+    if (pathname === '/api/reviews' && req.method === 'GET') {
+        try {
+            const data = await fetchReviews();
+            return sendJSON(res, 200, data);
+        } catch (err) {
+            return sendJSON(res, 500, { error: 'Erro ao carregar avaliações' });
+        }
+    }
+
+    // =========================================================================
+    // API: Avaliações dos Clientes (POST)
+    // =========================================================================
+    if (pathname === '/api/reviews' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk;
+            if (body.length > 5e5) req.destroy(); // 500KB
+        });
+
+        req.on('end', async () => {
+            try {
+                const reviewData = JSON.parse(body);
+                if (!reviewData.comment || !reviewData.name) {
+                    return sendJSON(res, 400, { error: 'Nome e comentário são obrigatórios' });
+                }
+
+                const result = await addReview(reviewData);
+                sendJSON(res, 200, {
+                    success: true,
+                    message: 'Avaliação enviada com sucesso! Muito obrigado pelo carinho.',
+                    id: result.id
+                });
+            } catch (err) {
+                sendJSON(res, 400, { error: 'Dados inválidos enviados' });
+            }
+        });
+        return;
+    }
+
+    // =========================================================================
+    // API: Avaliações dos Clientes (DELETE)
+    // =========================================================================
+    if (pathname === '/api/reviews' && req.method === 'DELETE') {
+        const id = parsedUrl.searchParams.get('id');
+        if (!id) {
+            return sendJSON(res, 400, { error: 'ID da avaliação não informado' });
+        }
+        await removeReview(id);
+        return sendJSON(res, 200, { success: true, message: 'Avaliação removida' });
     }
 
     // =========================================================================
@@ -291,7 +480,7 @@ const server = http.createServer(async (req, res) => {
 initDatabase().then(() => {
     server.listen(PORT, '0.0.0.0', () => {
         console.log(`\n🍲 ========================================================`);
-        console.log(`✨ Sabor Mineiro ACK rodando com suporte a PostgreSQL!`);
+        console.log(`✨ Sabor Mineiro ACK rodando com suporte a PostgreSQL & Avaliações!`);
         console.log(`🌐 Cardápio: http://localhost:${PORT}`);
         console.log(`⚙️ Painel Administrativo: http://localhost:${PORT}/admin.html`);
         console.log(`========================================================\n`);

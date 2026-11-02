@@ -104,11 +104,44 @@
 
         <!-- Botão Adicionar no Rodapé -->
         <div class="text-center pt-8">
-            <button onclick="addNewProduct()" class="border-2 border-dashed border-amber-500/40 hover:border-amber-500 text-amber-400 hover:text-amber-300 font-semibold px-6 py-4 rounded-2xl transition flex items-center justify-center gap-2 mx-auto w-full max-w-md bg-amber-500/5">
+            <button onclick="addNewProduct()" class="border-2 border-dashed border-amber-500/40 hover:border-amber-500 text-amber-400 hover:text-amber-300 font-semibold px-6 py-4 rounded-2xl transition flex items-center justify-center gap-2 mx-auto w-full max-w-md bg-amber-500/5 cursor-pointer">
                 <i class="fa-solid fa-plus-circle text-lg"></i>
                 <span>Adicionar Mais Um Caldo / Produto</span>
             </button>
         </div>
+
+        <!-- Divisor -->
+        <div class="my-12 border-t border-white/10"></div>
+
+        <!-- Seção de Gerenciamento de Avaliações -->
+        <section id="admin-reviews-section" class="mb-12">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-star text-amber-400"></i>
+                        <span>Avaliações dos Clientes</span>
+                    </h2>
+                    <p class="text-xs text-gray-400 mt-0.5">Visualize e modere os depoimentos enviados pelos clientes no site</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-500/10 border border-amber-500/20 px-3.5 py-1.5 rounded-xl text-xs text-amber-400 font-semibold flex items-center gap-1.5">
+                        <span id="admin-reviews-avg">5.0</span> ★
+                        <span id="admin-reviews-count" class="text-gray-400 text-[11px]">(0 avaliações)</span>
+                    </div>
+                    <button onclick="loadAdminReviews()" class="bg-white/10 hover:bg-white/20 text-white text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-rotate"></i> Atualizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lista de Avaliações -->
+            <div id="admin-reviews-list" class="space-y-3">
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fa-solid fa-circle-notch fa-spin text-xl text-amber-500 mb-2"></i>
+                    <p class="text-xs">Carregando avaliações...</p>
+                </div>
+            </div>
+        </section>
     </main>
 
     <script>
@@ -445,8 +478,101 @@
                 .replace(/>/g, '&gt;');
         }
 
+        // =========================================================================
+        // Gerenciamento de Avaliações dos Clientes
+        // =========================================================================
+        let adminReviews = [];
+
+        async function loadAdminReviews() {
+            const listEl = document.getElementById('admin-reviews-list');
+            try {
+                const res = await fetch('/api/reviews?t=' + Date.now());
+                if (!res.ok) throw new Error('Falha ao buscar avaliações');
+                const data = await res.json();
+                adminReviews = Array.isArray(data.reviews) ? data.reviews : [];
+
+                const avgEl = document.getElementById('admin-reviews-avg');
+                const countEl = document.getElementById('admin-reviews-count');
+                if (avgEl) avgEl.textContent = data.averageRating || '5.0';
+                if (countEl) countEl.textContent = `(${data.totalCount || adminReviews.length} avaliações)`;
+
+                renderAdminReviews();
+            } catch (err) {
+                console.error('Erro ao carregar avaliações no admin:', err);
+                if (listEl) {
+                    listEl.innerHTML = `<div class="text-center py-6 text-gray-500 text-xs">Erro ao carregar avaliações.</div>`;
+                }
+            }
+        }
+
+        function renderAdminReviews() {
+            const listEl = document.getElementById('admin-reviews-list');
+            if (!listEl) return;
+
+            if (!adminReviews || adminReviews.length === 0) {
+                listEl.innerHTML = `
+                    <div class="glass-card rounded-2xl p-6 text-center text-gray-400 border border-white/5">
+                        <i class="fa-regular fa-star text-2xl text-amber-500/50 mb-2"></i>
+                        <p class="text-xs">Nenhuma avaliação cadastrada ainda.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = adminReviews.map(r => {
+                const ratingNum = Math.max(1, Math.min(5, parseInt(r.rating) || 5));
+                let stars = '';
+                for (let i = 1; i <= 5; i++) {
+                    stars += i <= ratingNum 
+                        ? '<i class="fa-solid fa-star text-amber-400 text-xs"></i>'
+                        : '<i class="fa-regular fa-star text-gray-600 text-xs"></i>';
+                }
+                const date = escapeHtml(r.date_formatted || (r.created_at ? new Date(r.created_at).toLocaleDateString('pt-BR') : ''));
+                const dish = escapeHtml(r.dish || 'Caldo');
+                const name = escapeHtml(r.name || 'Cliente');
+                const comment = escapeHtml(r.comment || '');
+
+                return `
+                    <div class="glass-card rounded-xl p-4 border border-white/10 hover:border-amber-500/30 transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                <span class="font-bold text-white text-sm">${name}</span>
+                                <div class="flex items-center gap-0.5">${stars}</div>
+                                <span class="text-[11px] text-amber-400/90 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">🍲 ${dish}</span>
+                                ${date ? `<span class="text-[10px] text-gray-500">· ${date}</span>` : ''}
+                            </div>
+                            <p class="text-xs text-gray-300 italic pl-2 border-l-2 border-amber-500/40">"${comment}"</p>
+                        </div>
+                        <button onclick="deleteReview('${r.id}')" class="shrink-0 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 text-xs px-3 py-1.5 rounded-lg border border-red-500/20 transition flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-trash text-[11px]"></i>
+                            <span>Excluir</span>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function deleteReview(id) {
+            if (!confirm('Deseja realmente excluir esta avaliação? Ela sairá do site.')) return;
+
+            try {
+                const res = await fetch('/api/reviews?id=' + encodeURIComponent(id), {
+                    method: 'DELETE'
+                });
+                if (!res.ok) throw new Error('Erro ao excluir');
+                showToast('Avaliação excluída com sucesso!', 'warning');
+                loadAdminReviews();
+            } catch (err) {
+                console.error(err);
+                showToast('Erro ao excluir avaliação.', 'error');
+            }
+        }
+
         // Inicializar
-        document.addEventListener('DOMContentLoaded', loadProducts);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+            loadAdminReviews();
+        });
     </script>
 </body>
 </html>

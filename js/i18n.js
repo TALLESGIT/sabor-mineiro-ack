@@ -85,6 +85,34 @@ const TRANSLATIONS = {
         delivery_img_tag: "Nantucket Island, MA",
         delivery_img_caption: "O calor de Minas no inverno norte-americano",
 
+        // Avaliações de Clientes
+        reviews_section_tag: "Opinião de Quem Provou",
+        reviews_section_title: "Avaliações dos Nossos Clientes",
+        reviews_section_desc: "Veja o que as pessoas de Nantucket estão dizendo sobre os nossos caldos quentinhos artesanais!",
+        reviews_avg_label: "Avaliação Média",
+        reviews_total_count: "avaliações de clientes",
+        reviews_btn_leave: "Avaliar Meu Pedido",
+        reviews_dish_ordered: "Pediu:",
+        reviews_verified: "Cliente Verificado",
+        reviews_modal_title: "Avaliar Meu Pedido",
+        reviews_modal_subtitle: "Compartilhe sua experiência com os caldos do Sabor Mineiro!",
+        reviews_form_name: "Seu Nome:",
+        reviews_form_name_placeholder: "Ex: Maria Silva",
+        reviews_form_dish: "Qual caldo você pediu?",
+        reviews_dish_both: "Ambos os Caldos",
+        reviews_dish_frango: "Caldo de Frango com Milho",
+        reviews_dish_mandioca: "Caldo de Mandioca Especial",
+        reviews_dish_other: "Outro Caldo",
+        reviews_form_rating: "Sua Nota:",
+        reviews_form_comment: "Seu Comentário:",
+        reviews_form_comment_placeholder: "Conte o que achou do sabor, da entrega quentinha e das torradinhas...",
+        reviews_btn_submit: "Enviar Avaliação",
+        reviews_btn_submitting: "Enviando...",
+        reviews_btn_cancel: "Cancelar",
+        reviews_empty: "Nenhuma avaliação encontrada ainda. Seja o primeiro a avaliar!",
+        reviews_toast_success: "Muito obrigado pela sua avaliação! ⭐",
+        reviews_toast_required: "⚠️ Por favor, preencha seu nome e comentário!",
+
         // Rodapé
         footer_brand_subtitle: "Caldos no Capricho de Nantucket 🇺🇸 🇧🇷",
         footer_contact_label: "Atendimento e Pedidos Rápidos:",
@@ -178,6 +206,34 @@ const TRANSLATIONS = {
         delivery_item_3: "Convenient payment methods (Zelle, Cash, Venmo, or Card)",
         delivery_img_tag: "Nantucket Island, MA",
         delivery_img_caption: "Brazilian warmth in the New England winter",
+
+        // Customer Reviews
+        reviews_section_tag: "Customer Testimonials",
+        reviews_section_title: "What Our Customers Say",
+        reviews_section_desc: "See what Nantucket residents are saying about our piping hot homemade Brazilian soups!",
+        reviews_avg_label: "Average Rating",
+        reviews_total_count: "customer reviews",
+        reviews_btn_leave: "Leave a Review",
+        reviews_dish_ordered: "Ordered:",
+        reviews_verified: "Verified Customer",
+        reviews_modal_title: "Rate Your Order",
+        reviews_modal_subtitle: "Share your experience with Sabor Mineiro's soups!",
+        reviews_form_name: "Your Name:",
+        reviews_form_name_placeholder: "Ex: John Smith",
+        reviews_form_dish: "Which soup did you order?",
+        reviews_dish_both: "Both Soups",
+        reviews_dish_frango: "Chicken & Corn Chowder",
+        reviews_dish_mandioca: "Creamy Yucca & Bacon Soup",
+        reviews_dish_other: "Other Soup",
+        reviews_form_rating: "Your Rating:",
+        reviews_form_comment: "Your Review:",
+        reviews_form_comment_placeholder: "Tell us about the flavor, piping hot delivery, and the crunchy toasts...",
+        reviews_btn_submit: "Submit Review",
+        reviews_btn_submitting: "Submitting...",
+        reviews_btn_cancel: "Cancel",
+        reviews_empty: "No reviews yet. Be the first to leave one!",
+        reviews_toast_success: "Thank you so much for your review! ⭐",
+        reviews_toast_required: "⚠️ Please enter your name and a review comment!",
 
         // Rodapé
         footer_brand_subtitle: "Artisanal Brazilian Soups in Nantucket 🇺🇸 🇧🇷",
@@ -280,6 +336,9 @@ function applyTranslations(lang) {
     }
     if (typeof updateOrderButton === 'function') {
         updateOrderButton();
+    }
+    if (typeof renderReviews === 'function') {
+        renderReviews();
     }
 }
 
