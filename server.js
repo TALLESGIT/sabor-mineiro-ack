@@ -78,24 +78,9 @@ async function initDatabase() {
                 );
             `);
 
-            const revCheck = await client.query("SELECT COUNT(*) FROM customer_reviews");
-            if (parseInt(revCheck.rows[0].count) === 0) {
-                let initialReviews = [];
-                try {
-                    initialReviews = JSON.parse(fs.readFileSync(REVIEWS_FILE, 'utf8'));
-                } catch (e) {
-                    initialReviews = [];
-                }
-                for (const r of initialReviews) {
-                    await client.query(
-                        "INSERT INTO customer_reviews (name, rating, dish, comment, approved) VALUES ($1, $2, $3, $4, true)",
-                        [r.name, r.rating, r.dish, r.comment]
-                    );
-                }
-                console.log('✅ Tabela customer_reviews criada e populada com avaliações iniciais!');
-            } else {
-                console.log('✅ PostgreSQL: Tabela de avaliações pronta.');
-            }
+            // Limpar avaliações de exemplo/seed se ainda existirem
+            await client.query("DELETE FROM customer_reviews WHERE name IN ('Mariana Souza', 'John Miller', 'Rodrigo Silva')");
+            console.log('✅ PostgreSQL: Tabela de avaliações pronta (zerada para clientes reais).');
         } finally {
             client.release();
         }
@@ -256,6 +241,23 @@ async function removeReview(id) {
     }
 }
 
+/**
+ * Remove todas as avaliações (zerar)
+ */
+async function removeAllReviews() {
+    if (pool) {
+        try {
+            await pool.query("TRUNCATE customer_reviews RESTART IDENTITY");
+        } catch (err) {
+            console.error('⚠️ Erro ao truncar reviews no PostgreSQL:', err.message);
+        }
+    }
+    try {
+        fs.writeFileSync(REVIEWS_FILE, '[]', 'utf8');
+    } catch (e) {}
+    return { success: true };
+}
+
 const MIME_TYPES = {
     '.html': 'text/html; charset=UTF-8',
     '.css': 'text/css; charset=UTF-8',
@@ -389,6 +391,10 @@ const server = http.createServer(async (req, res) => {
         const id = parsedUrl.searchParams.get('id');
         if (!id) {
             return sendJSON(res, 400, { error: 'ID da avaliação não informado' });
+        }
+        if (id === 'all') {
+            await removeAllReviews();
+            return sendJSON(res, 200, { success: true, message: 'Todas as avaliações foram zeradas com sucesso' });
         }
         await removeReview(id);
         return sendJSON(res, 200, { success: true, message: 'Avaliação removida' });

@@ -75,4 +75,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof initReviews === 'function') {
         initReviews();
     }
+
+    // 8. Atalho secreto para o administrador acessar o painel
+    //    (5 cliques rápidos no copyright do rodapé OU pressionar Alt+A)
+    let secretAdminClicks = 0;
+    let secretAdminTimer = null;
+    const secretTrigger = document.getElementById('secret-admin-trigger');
+
+    if (secretTrigger) {
+        secretTrigger.addEventListener('click', () => {
+            secretAdminClicks++;
+            clearTimeout(secretAdminTimer);
+            if (secretAdminClicks >= 5) {
+                window.location.href = 'admin.html';
+                secretAdminClicks = 0;
+            } else {
+                secretAdminTimer = setTimeout(() => { secretAdminClicks = 0; }, 2500);
+            }
+        });
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.altKey && (e.key === 'a' || e.key === 'A')) {
+            window.location.href = 'admin.html';
+        }
+    });
 });

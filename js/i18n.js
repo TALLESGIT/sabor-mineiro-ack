@@ -110,6 +110,9 @@ const TRANSLATIONS = {
         reviews_btn_submitting: "Enviando...",
         reviews_btn_cancel: "Cancelar",
         reviews_empty: "Nenhuma avaliação encontrada ainda. Seja o primeiro a avaliar!",
+        reviews_empty_title: "Ainda não temos avaliações cadastradas",
+        reviews_empty_desc: "Já provou os nossos caldos quentinhos em Nantucket? Conte como foi a sua experiência!",
+        reviews_empty_btn: "Seja o Primeiro a Avaliar",
         reviews_toast_success: "Muito obrigado pela sua avaliação! ⭐",
         reviews_toast_required: "⚠️ Por favor, preencha seu nome e comentário!",
 
@@ -232,6 +235,9 @@ const TRANSLATIONS = {
         reviews_btn_submitting: "Submitting...",
         reviews_btn_cancel: "Cancel",
         reviews_empty: "No reviews yet. Be the first to leave one!",
+        reviews_empty_title: "No customer reviews yet",
+        reviews_empty_desc: "Have you tasted our piping hot soups on Nantucket? Tell us about your experience!",
+        reviews_empty_btn: "Be the First to Review",
         reviews_toast_success: "Thank you so much for your review! ⭐",
         reviews_toast_required: "⚠️ Please enter your name and a review comment!",
 

@@ -55,40 +55,12 @@ async function loadReviews() {
             totalCount: data.totalCount || (data.reviews ? data.reviews.length : 0)
         };
     } catch (err) {
-        console.warn('Usando dados locais de avaliações:', err.message);
-        // Fallback básico caso o endpoint falhe temporariamente
-        if (reviewsData.reviews.length === 0) {
-            reviewsData = {
-                reviews: [
-                    {
-                        id: 1,
-                        name: "Mariana Souza",
-                        rating: 5,
-                        dish: "Caldo de Frango com Milho",
-                        comment: "Chegou super quentinho aqui em Mid-Island no meio da noite fria! A torradinha crocante com o caldo cremoso estava sensacional. Já virou tradição da semana!",
-                        date_formatted: "28/10/2026"
-                    },
-                    {
-                        id: 2,
-                        name: "John Miller",
-                        rating: 5,
-                        dish: "Creamy Yucca & Bacon Soup",
-                        comment: "Best soup on Nantucket this winter! Thick, flavorful and the bacon gives it an incredible touch. Fast delivery to Town in heavy thermal containers. 10/10!",
-                        date_formatted: "30/10/2026"
-                    },
-                    {
-                        id: 3,
-                        name: "Rodrigo Silva",
-                        rating: 5,
-                        dish: "Ambos os Caldos",
-                        comment: "O verdadeiro sabor de Minas Gerais aqui na ilha! Pedimos os dois caldos para o jantar em família e todos amaram. O entregador chegou rápido e com o caldo fervendo.",
-                        date_formatted: "01/11/2026"
-                    }
-                ],
-                averageRating: "5.0",
-                totalCount: 3
-            };
-        }
+        console.warn('Erro ao carregar avaliações:', err.message);
+        reviewsData = {
+            reviews: [],
+            averageRating: "5.0",
+            totalCount: 0
+        };
     }
 
     renderReviews();
@@ -115,13 +87,24 @@ function renderReviews() {
     if (!container) return;
 
     if (!reviewsData.reviews || reviewsData.reviews.length === 0) {
-        const emptyMsg = typeof getTranslation === 'function' ? getTranslation('reviews_empty') : 'Nenhuma avaliação ainda.';
+        const emptyTitle = typeof getTranslation === 'function' ? getTranslation('reviews_empty_title') : 'Ainda não temos avaliações cadastradas';
+        const emptyDesc = typeof getTranslation === 'function' ? getTranslation('reviews_empty_desc') : 'Já provou os nossos caldos quentinhos em Nantucket? Conte como foi a sua experiência!';
+        const emptyBtn = typeof getTranslation === 'function' ? getTranslation('reviews_empty_btn') : 'Seja o Primeiro a Avaliar';
+
         container.innerHTML = `
-            <div class="col-span-full text-center py-8 text-gray-400">
-                <i class="fa-regular fa-comment-dots text-3xl mb-2 text-amber-500/50"></i>
-                <p class="text-sm">${emptyMsg}</p>
+            <div class="col-span-full max-w-lg mx-auto text-center py-10 px-6 glass-card rounded-2xl border border-white/10 shadow-xl">
+                <div class="w-14 h-14 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-2xl mx-auto mb-3">
+                    <i class="fa-regular fa-star"></i>
+                </div>
+                <h3 class="text-white font-bold text-base mb-1.5">${emptyTitle}</h3>
+                <p class="text-gray-400 text-xs sm:text-sm mb-6 leading-relaxed">${emptyDesc}</p>
+                <button type="button" onclick="openReviewModal()" class="bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow-md transition inline-flex items-center gap-2 cursor-pointer transform active:scale-95">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span>${emptyBtn}</span>
+                </button>
             </div>
         `;
+        populateDishSelectOptions();
         return;
     }
 
@@ -400,3 +383,4 @@ function initReviews() {
         });
     }
 }
+
