@@ -33,7 +33,7 @@ const TRANSLATIONS = {
         // Menu
         menu_subtitle: "Nosso Cardápio Especial",
         menu_title: "Escolha os Seus Caldos",
-        menu_desc: "Porções generosas e encorpadas preparadas diariamente no capricho. Cada caldo acompanha torradinha crocante.",
+        menu_desc: "Porções generosas e encorpadas preparadas diariamente no capricho.",
 
         // Item 1: Caldo de Frango
         badge_frango: "Favorito da Casa",
@@ -115,7 +115,7 @@ const TRANSLATIONS = {
         reviews_dish_other: "Outro Caldo",
         reviews_form_rating: "Sua Nota:",
         reviews_form_comment: "Seu Comentário:",
-        reviews_form_comment_placeholder: "Conte o que achou do sabor, da entrega quentinha e das torradinhas...",
+        reviews_form_comment_placeholder: "Conte o que achou do sabor, da entrega quentinha e do capricho...",
         reviews_btn_submit: "Enviar Avaliação",
         reviews_btn_submitting: "Enviando...",
         reviews_btn_cancel: "Cancelar",
@@ -168,7 +168,7 @@ const TRANSLATIONS = {
         // Menu
         menu_subtitle: "Our Special Menu",
         menu_title: "Choose Your Soups",
-        menu_desc: "Hearty, generous portions prepared fresh every day. Each soup includes warm, crispy artisan toast.",
+        menu_desc: "Hearty, generous portions prepared fresh every day.",
 
         // Item 1: Caldo de Frango
         badge_frango: "House Favorite",
@@ -250,7 +250,7 @@ const TRANSLATIONS = {
         reviews_dish_other: "Other Soup",
         reviews_form_rating: "Your Rating:",
         reviews_form_comment: "Your Review:",
-        reviews_form_comment_placeholder: "Tell us about the flavor, piping hot delivery, and the crunchy toasts...",
+        reviews_form_comment_placeholder: "Tell us about the flavor, piping hot delivery, and homemade warmth...",
         reviews_btn_submit: "Submit Review",
         reviews_btn_submitting: "Submitting...",
         reviews_btn_cancel: "Cancel",
