@@ -58,6 +58,67 @@ let productsList = [...DEFAULT_PRODUCTS];
 // Estado do carrinho: { [productId]: quantity }
 const cart = {};
 
+// Estado do Atendimento da Loja (Aberto / Fechado)
+let storeStatus = {
+    isOpen: true,
+    hours: "17:00 - 23:00",
+    notice: ""
+};
+
+/**
+ * Carrega o status de atendimento da loja da API
+ */
+async function loadStoreStatus() {
+    try {
+        const res = await fetch('/api/store-status?t=' + Date.now());
+        if (res.ok) {
+            storeStatus = await res.json();
+        }
+    } catch (err) {
+        console.warn('Usando status padrão da loja:', err.message);
+    }
+    renderStoreStatusUI();
+    updateOrderButton();
+}
+
+/**
+ * Renderiza o status da loja no cabeçalho e na seção de checkout
+ */
+function renderStoreStatusUI() {
+    const badge = document.getElementById('store-status-badge');
+    const closedBanner = document.getElementById('store-closed-banner');
+    const closedBannerNotice = document.getElementById('store-closed-notice');
+    const t = (typeof getTranslation === 'function') ? getTranslation : (k) => k;
+
+    // Atualizar Badge no Cabeçalho
+    if (badge) {
+        if (storeStatus && storeStatus.isOpen) {
+            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-sm';
+            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span>${t('store_status_open')} (${storeStatus.hours || '17h - 23h'})</span>`;
+        } else {
+            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-red-500/15 text-red-400 border border-red-500/30 shadow-sm';
+            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-400"></span> <span>${t('store_status_closed')}</span>`;
+        }
+    }
+
+    // Atualizar Banner de Fechado no Checkout
+    if (closedBanner) {
+        if (storeStatus && !storeStatus.isOpen) {
+            closedBanner.classList.remove('hidden');
+            if (closedBannerNotice) {
+                if (storeStatus.notice) {
+                    closedBannerNotice.textContent = `📢 ${storeStatus.notice}`;
+                    closedBannerNotice.classList.remove('hidden');
+                } else {
+                    closedBannerNotice.classList.add('hidden');
+                }
+            }
+        } else {
+            closedBanner.classList.add('hidden');
+        }
+    }
+}
+
 /**
  * Retorna o produto pelo ID
  * @param {string} id 
@@ -323,6 +384,28 @@ function updateOrderButton() {
     const { isComplete, hasName, hasAddress } = getCustomerData();
     const btn = document.getElementById('btn-whatsapp-order');
     const hintEl = document.getElementById('order-hint');
+    const t = (typeof getTranslation === 'function') ? getTranslation : (k) => k;
+
+    // Verificar se a loja está fechada pelo admin
+    if (storeStatus && storeStatus.isOpen === false) {
+        if (btn) {
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed', 'grayscale');
+            btn.innerHTML = `<i class="fa-solid fa-moon"></i> <span>${t('btn_send_order_closed')}</span>`;
+        }
+        if (hintEl) {
+            hintEl.textContent = storeStatus.notice 
+                ? `${t('order_closed_hint')} (${storeStatus.notice})`
+                : t('order_closed_hint');
+            hintEl.className = 'order-hint order-hint--warning';
+        }
+        return;
+    } else {
+        if (btn) {
+            btn.classList.remove('opacity-50', 'cursor-not-allowed', 'grayscale');
+            btn.innerHTML = `<i class="fa-brands fa-whatsapp text-xl sm:text-2xl"></i> <span data-i18n="btn_send_order">${t('btn_send_order')}</span>`;
+        }
+    }
 
     const canOrder = totalItems > 0 && isComplete;
 
@@ -331,8 +414,6 @@ function updateOrderButton() {
     }
 
     if (hintEl) {
-        const t = (typeof getTranslation === 'function') ? getTranslation : (k) => k;
-
         if (totalItems === 0) {
             hintEl.textContent = t('order_empty_cart_hint');
             hintEl.className = 'order-hint order-hint--warning';
@@ -492,6 +573,12 @@ async function getCurrentLocation() {
 function sendWhatsAppOrder() {
     const totalItems = getTotalCartItems();
     const t = (typeof getTranslation === 'function') ? getTranslation : (k) => k;
+
+    // Bloquear envio se a loja estiver fechada
+    if (storeStatus && storeStatus.isOpen === false) {
+        showToast(t('store_closed_toast'), "warning");
+        return;
+    }
 
     if (totalItems === 0) {
         showToast(t('toast_empty_cart'), "warning");

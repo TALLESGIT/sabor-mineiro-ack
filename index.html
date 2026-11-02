@@ -47,7 +47,7 @@
         }
     </script>
     <!-- Estilos Customizados -->
-    <link rel="stylesheet" href="css/style.css?v=5">
+    <link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body class="relative min-h-screen selection:bg-amber-500 selection:text-white">
 
@@ -73,6 +73,12 @@
             </a>
 
             <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Status de Atendimento da Loja -->
+                <div id="store-status-badge" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span data-i18n="store_status_open">Aberto Agora (17:00 - 23:00)</span>
+                </div>
+
                 <!-- Seletor de Idioma com Bandeiras -->
                 <div class="lang-switcher" role="group" aria-label="Language">
                     <button id="lang-pt" class="lang-btn active" onclick="switchLanguage('pt')" aria-pressed="true" title="Português">
@@ -267,6 +273,18 @@
         <!-- Checkout / WhatsApp Direct -->
         <div class="mt-8 sm:mt-12 glass-panel p-5 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-amber-500/30 shadow-2xl relative overflow-hidden" id="checkout-section">
             <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-orange-500/10 rounded-full blur-2xl"></div>
+
+            <!-- Banner de Loja Fechada (Exibido dinamicamente quando o admin pausar pedidos) -->
+            <div id="store-closed-banner" class="hidden mb-6 bg-red-950/40 border border-red-500/40 rounded-2xl p-4 sm:p-5 text-center shadow-lg">
+                <div class="inline-flex items-center justify-center gap-2 text-red-400 font-bold text-sm sm:text-base mb-1">
+                    <i class="fa-solid fa-moon text-amber-400"></i>
+                    <span data-i18n="store_closed_banner_title">Cozinha Fechada no Momento 🌙</span>
+                </div>
+                <p class="text-xs sm:text-sm text-gray-300 max-w-xl mx-auto leading-relaxed" data-i18n="store_closed_banner_desc">
+                    Nosso horário de entregas é das 17h às 23h. No momento pausamos o recebimento de novos pedidos para evitar transtornos. Obrigado pelo carinho!
+                </p>
+                <p id="store-closed-notice" class="hidden text-xs text-amber-300 font-semibold mt-2 italic"></p>
+            </div>
 
             <div class="grid lg:grid-cols-3 gap-5 sm:gap-6 items-start lg:items-center">
                 <div class="lg:col-span-2 space-y-3 sm:space-y-4">
@@ -544,11 +562,11 @@
     </footer>
 
     <!-- Scripts da Aplicação Modularizados -->
-    <script src="js/i18n.js?v=5"></script>
-    <script src="js/cart.js?v=5"></script>
-    <script src="js/reviews.js?v=5"></script>
-    <script src="js/snow.js?v=5"></script>
-    <script src="js/main.js?v=5"></script>
+    <script src="js/i18n.js?v=6"></script>
+    <script src="js/cart.js?v=6"></script>
+    <script src="js/reviews.js?v=6"></script>
+    <script src="js/snow.js?v=6"></script>
+    <script src="js/main.js?v=6"></script>
 
 </body>
 </html>

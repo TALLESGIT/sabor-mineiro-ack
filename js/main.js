@@ -45,6 +45,11 @@ document.addEventListener('DOMContentLoaded', () => {
         loadProductsCatalog();
     }
 
+    // 3.1 Carregar status de atendimento da loja (aberto/fechado)
+    if (typeof loadStoreStatus === 'function') {
+        loadStoreStatus();
+    }
+
     // 4. Estado inicial do botão de pedido
     if (typeof updateOrderButton === 'function') {
         updateOrderButton();

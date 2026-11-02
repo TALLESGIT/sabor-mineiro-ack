@@ -74,6 +74,16 @@ const TRANSLATIONS = {
         order_fill_both_hint: "Preencha seu nome e endereço de entrega para liberar o botão.",
         order_fill_name_hint: "Preencha seu nome para liberar o botão de envio.",
         order_fill_address_hint: "Preencha o endereço de entrega para liberar o botão.",
+        order_closed_hint: "🔴 Cozinha Fechada no Momento - Pedidos Pausados",
+        btn_send_order_closed: "Cozinha Fechada no Momento",
+
+        // Status de Atendimento da Loja
+        store_status_open: "Aberto Agora",
+        store_status_closed: "Fechado no Momento",
+        store_delivery_hours_prefix: "Horário de Entregas:",
+        store_closed_banner_title: "Cozinha Fechada no Momento 🌙",
+        store_closed_banner_desc: "Nosso horário de entregas é das 17h às 23h. No momento pausamos o recebimento de novos pedidos para evitar transtornos. Obrigado pelo carinho!",
+        store_closed_toast: "⚠️ A cozinha está fechada no momento e não estamos recebendo pedidos. Horário de atendimento: 17h às 23h.",
 
         // Entregas
         delivery_tag: "Delivery em Nantucket",
@@ -199,6 +209,16 @@ const TRANSLATIONS = {
         order_fill_both_hint: "Please fill in your name and delivery address to unlock the button.",
         order_fill_name_hint: "Please fill in your name to unlock the button.",
         order_fill_address_hint: "Please fill in your delivery address to unlock the button.",
+        order_closed_hint: "🔴 Kitchen Currently Closed - Orders Paused",
+        btn_send_order_closed: "Kitchen Currently Closed",
+
+        // Store Opening Status
+        store_status_open: "Open Now",
+        store_status_closed: "Currently Closed",
+        store_delivery_hours_prefix: "Delivery Hours:",
+        store_closed_banner_title: "Kitchen Currently Closed 🌙",
+        store_closed_banner_desc: "Our delivery hours are from 5:00 PM to 11:00 PM. We are currently not accepting new orders to avoid delays. Thank you for your patience!",
+        store_closed_toast: "⚠️ The kitchen is currently closed and not receiving orders. Delivery hours: 5:00 PM to 11:00 PM.",
 
         // Entregas
         delivery_tag: "Nantucket Delivery",
@@ -345,6 +365,9 @@ function applyTranslations(lang) {
     }
     if (typeof renderReviews === 'function') {
         renderReviews();
+    }
+    if (typeof renderStoreStatusUI === 'function') {
+        renderStoreStatusUI();
     }
 }
 

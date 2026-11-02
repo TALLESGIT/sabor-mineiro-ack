@@ -103,6 +103,59 @@
 
     <!-- Conteúdo Principal -->
     <main class="max-w-6xl mx-auto px-4 sm:px-6 pt-6">
+        <!-- Card de Controle de Atendimento (Aberto / Fechado) -->
+        <div id="store-status-card" class="glass-card rounded-2xl p-4 sm:p-5 mb-6 border border-emerald-500/30 shadow-xl transition">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <div id="status-icon-box" class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-lg transition bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
+                        <i class="fa-solid fa-store"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-sm sm:text-base font-bold text-white">Status de Atendimento da Cozinha</h2>
+                            <span id="status-pill" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                ABERTO AGORA 🟢
+                            </span>
+                        </div>
+                        <p id="status-desc" class="text-xs text-gray-400 mt-0.5">
+                            O site está liberado e os clientes podem enviar pedidos normalmente via WhatsApp.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <button type="button" onclick="toggleStoreStatus()" id="btn-toggle-store" class="w-full sm:w-auto px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm shadow-lg transition flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white cursor-pointer active:scale-95">
+                        <i class="fa-solid fa-power-off"></i>
+                        <span id="btn-toggle-store-text">Pausar / Fechar Pedidos</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Horário e Aviso Opcional -->
+            <div class="mt-4 pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div>
+                    <label class="block text-gray-300 font-semibold mb-1">
+                        <i class="fa-regular fa-clock text-amber-400 mr-1"></i> Horário de Entregas (exibido aos clientes):
+                    </label>
+                    <input type="text" id="store-hours-field" placeholder="Ex: 17:00 - 23:00" 
+                           class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500 transition">
+                </div>
+                <div>
+                    <label class="block text-gray-300 font-semibold mb-1">
+                        <i class="fa-solid fa-bullhorn text-amber-400 mr-1"></i> Aviso Especial no Site (opcional):
+                    </label>
+                    <input type="text" id="store-notice-field" placeholder="Ex: Caldos limitados hoje / Fechando mais cedo" 
+                           class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500 transition">
+                </div>
+            </div>
+            <div class="mt-3 flex justify-end">
+                <button type="button" onclick="saveStoreSettings()" id="btn-save-store-settings" class="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3.5 py-1.5 rounded-xl border border-white/10 transition flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-check text-amber-400"></i>
+                    <span>Salvar Horário e Aviso</span>
+                </button>
+            </div>
+        </div>
+
         <!-- Banner de Dica -->
         <div class="glass-card rounded-2xl p-4 sm:p-5 mb-6 border border-amber-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div class="flex items-center gap-3">
@@ -645,9 +698,137 @@
             }
         }
 
+        // =========================================================================
+        // Gerenciamento de Status de Atendimento (Aberto / Fechado)
+        // =========================================================================
+        let adminStoreStatus = {
+            isOpen: true,
+            hours: "17:00 - 23:00",
+            notice: ""
+        };
+
+        async function loadAdminStoreStatus() {
+            try {
+                const res = await fetch('/api/store-status?t=' + Date.now());
+                if (res.ok) {
+                    adminStoreStatus = await res.json();
+                    renderAdminStoreStatus();
+                }
+            } catch (err) {
+                console.error('Erro ao carregar status da loja:', err);
+            }
+        }
+
+        function renderAdminStoreStatus() {
+            const card = document.getElementById('store-status-card');
+            const iconBox = document.getElementById('status-icon-box');
+            const pill = document.getElementById('status-pill');
+            const desc = document.getElementById('status-desc');
+            const btnToggle = document.getElementById('btn-toggle-store');
+            const btnToggleText = document.getElementById('btn-toggle-store-text');
+            const hoursField = document.getElementById('store-hours-field');
+            const noticeField = document.getElementById('store-notice-field');
+
+            if (hoursField && adminStoreStatus.hours !== undefined) hoursField.value = adminStoreStatus.hours;
+            if (noticeField && adminStoreStatus.notice !== undefined) noticeField.value = adminStoreStatus.notice;
+
+            if (adminStoreStatus.isOpen) {
+                if (card) card.className = 'glass-card rounded-2xl p-4 sm:p-5 mb-6 border border-emerald-500/30 shadow-xl transition';
+                if (iconBox) iconBox.className = 'w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-lg transition bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0';
+                if (pill) {
+                    pill.className = 'text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+                    pill.textContent = 'ABERTO AGORA 🟢';
+                }
+                if (desc) desc.textContent = 'A cozinha está aberta e os clientes podem enviar pedidos normalmente via WhatsApp.';
+                if (btnToggle) {
+                    btnToggle.className = 'w-full sm:w-auto px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm shadow-lg transition flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white cursor-pointer active:scale-95';
+                }
+                if (btnToggleText) btnToggleText.textContent = 'Pausar / Fechar Pedidos';
+            } else {
+                if (card) card.className = 'glass-card rounded-2xl p-4 sm:p-5 mb-6 border border-red-500/30 shadow-xl transition bg-red-950/20';
+                if (iconBox) iconBox.className = 'w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-lg transition bg-red-500/20 text-red-400 border border-red-500/30 shrink-0';
+                if (pill) {
+                    pill.className = 'text-xs font-bold px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30';
+                    pill.textContent = 'FECHADO NO MOMENTO 🔴';
+                }
+                if (desc) desc.textContent = 'Os pedidos estão pausados no site. Os clientes verão que a cozinha está fechada e o botão de WhatsApp fica bloqueado.';
+                if (btnToggle) {
+                    btnToggle.className = 'w-full sm:w-auto px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm shadow-lg transition flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer active:scale-95';
+                }
+                if (btnToggleText) btnToggleText.textContent = 'Abrir Loja / Aceitar Pedidos';
+            }
+        }
+
+        async function toggleStoreStatus() {
+            const newStatus = !adminStoreStatus.isOpen;
+            const hoursField = document.getElementById('store-hours-field');
+            const noticeField = document.getElementById('store-notice-field');
+
+            const payload = {
+                isOpen: newStatus,
+                hours: hoursField ? hoursField.value.trim() : (adminStoreStatus.hours || "17:00 - 23:00"),
+                notice: noticeField ? noticeField.value.trim() : (adminStoreStatus.notice || "")
+            };
+
+            try {
+                const res = await fetch('/api/store-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) throw new Error('Falha ao atualizar');
+                const data = await res.json();
+                adminStoreStatus = data.status || payload;
+                renderAdminStoreStatus();
+                showToast(adminStoreStatus.isOpen ? '🟢 Loja aberta! Aceitando pedidos.' : '🔴 Loja fechada! Pedidos bloqueados no site.', adminStoreStatus.isOpen ? 'success' : 'warning');
+            } catch (err) {
+                console.error(err);
+                showToast('Erro ao atualizar status da loja.', 'error');
+            }
+        }
+
+        async function saveStoreSettings() {
+            const hoursField = document.getElementById('store-hours-field');
+            const noticeField = document.getElementById('store-notice-field');
+            const btn = document.getElementById('btn-save-store-settings');
+
+            const payload = {
+                isOpen: adminStoreStatus.isOpen,
+                hours: hoursField ? hoursField.value.trim() : "17:00 - 23:00",
+                notice: noticeField ? noticeField.value.trim() : ""
+            };
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Salvando...`;
+            }
+
+            try {
+                const res = await fetch('/api/store-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) throw new Error('Falha ao salvar');
+                const data = await res.json();
+                adminStoreStatus = data.status || payload;
+                renderAdminStoreStatus();
+                showToast('✅ Horário e aviso salvos com sucesso!', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('Erro ao salvar configurações.', 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-check text-amber-400"></i> <span>Salvar Horário e Aviso</span>`;
+                }
+            }
+        }
+
         // Inicializar
         document.addEventListener('DOMContentLoaded', () => {
             checkAdminAuth();
+            loadAdminStoreStatus();
             loadProducts();
             loadAdminReviews();
         });

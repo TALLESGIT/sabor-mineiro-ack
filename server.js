@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = __dirname;
 const PRODUCTS_FILE = path.join(PUBLIC_DIR, 'products.json');
 const REVIEWS_FILE = path.join(PUBLIC_DIR, 'reviews.json');
+const STORE_STATUS_FILE = path.join(PUBLIC_DIR, 'store_status.json');
 const UPLOAD_DIR = path.join(PUBLIC_DIR, 'assets', 'images');
 
 if (!fs.existsSync(UPLOAD_DIR)) {
@@ -138,6 +139,62 @@ async function persistProducts(products) {
     }
 
     return { savedInDB };
+}
+
+/**
+ * Busca o status de atendimento da loja (Aberto/Fechado, Horários e Aviso)
+ */
+async function fetchStoreStatus() {
+    if (pool) {
+        try {
+            const res = await pool.query("SELECT data FROM menu_config WHERE key = 'store_status'");
+            if (res.rows.length > 0 && res.rows[0].data) {
+                return res.rows[0].data;
+            }
+        } catch (err) {
+            console.error('⚠️ Erro ao consultar store_status no PostgreSQL:', err.message);
+        }
+    }
+
+    try {
+        return JSON.parse(fs.readFileSync(STORE_STATUS_FILE, 'utf8'));
+    } catch (e) {
+        return { isOpen: true, hours: "17:00 - 23:00", notice: "" };
+    }
+}
+
+/**
+ * Grava o status da loja (PostgreSQL + arquivo local)
+ */
+async function persistStoreStatus(status) {
+    let savedInDB = false;
+    const cleanStatus = {
+        isOpen: Boolean(status.isOpen),
+        hours: String(status.hours || "17:00 - 23:00").trim().substring(0, 50),
+        notice: String(status.notice || "").trim().substring(0, 300)
+    };
+
+    if (pool) {
+        try {
+            await pool.query(`
+                INSERT INTO menu_config (key, data, updated_at)
+                VALUES ('store_status', $1, NOW())
+                ON CONFLICT (key) DO UPDATE SET data = $1, updated_at = NOW()
+            `, [JSON.stringify(cleanStatus)]);
+            savedInDB = true;
+            console.log('💾 Status da loja persistido no PostgreSQL:', cleanStatus.isOpen ? 'ABERTO' : 'FECHADO');
+        } catch (err) {
+            console.error('⚠️ Erro ao gravar store_status no PostgreSQL:', err.message);
+        }
+    }
+
+    try {
+        fs.writeFileSync(STORE_STATUS_FILE, JSON.stringify(cleanStatus, null, 4), 'utf8');
+    } catch (e) {
+        console.warn('⚠️ Não foi possível gravar arquivo store_status.json:', e.message);
+    }
+
+    return { success: true, status: cleanStatus, savedInDB };
 }
 
 /**
@@ -335,6 +392,40 @@ const server = http.createServer(async (req, res) => {
                     savedInDB: result.savedInDB,
                     count: products.length
                 });
+            } catch (err) {
+                sendJSON(res, 400, { error: 'JSON inválido enviado' });
+            }
+        });
+        return;
+    }
+
+    // =========================================================================
+    // API: Status da Loja / Atendimento (GET)
+    // =========================================================================
+    if (pathname === '/api/store-status' && req.method === 'GET') {
+        try {
+            const status = await fetchStoreStatus();
+            return sendJSON(res, 200, status);
+        } catch (err) {
+            return sendJSON(res, 500, { error: 'Erro ao buscar status da loja' });
+        }
+    }
+
+    // =========================================================================
+    // API: Status da Loja / Atendimento (POST)
+    // =========================================================================
+    if (pathname === '/api/store-status' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk;
+            if (body.length > 5e5) req.destroy();
+        });
+
+        req.on('end', async () => {
+            try {
+                const data = JSON.parse(body);
+                const result = await persistStoreStatus(data);
+                sendJSON(res, 200, result);
             } catch (err) {
                 sendJSON(res, 400, { error: 'JSON inválido enviado' });
             }
