@@ -1,20 +1,124 @@
 /**
- * Sabor Mineiro ACK - Servidor HTTP Local com API de Produtos
- * Zero dependências externas (roda direto com Node.js)
+ * Sabor Mineiro ACK - Servidor HTTP com suporte nativo a PostgreSQL
+ * Persistência definitiva na nuvem (Render.com) com fallback para JSON local
  */
 
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { Pool } = require('pg');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = __dirname;
 const PRODUCTS_FILE = path.join(PUBLIC_DIR, 'products.json');
 const UPLOAD_DIR = path.join(PUBLIC_DIR, 'assets', 'images');
 
-// Garante que a pasta de uploads exista
 if (!fs.existsSync(UPLOAD_DIR)) {
     fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+}
+
+// Configuração do PostgreSQL nativo
+let pool = null;
+if (process.env.DATABASE_URL) {
+    const isLocalhost = process.env.DATABASE_URL.includes('localhost') || process.env.DATABASE_URL.includes('127.0.0.1');
+    pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: isLocalhost ? false : { rejectUnauthorized: false }
+    });
+    console.log('🔌 Conectando ao PostgreSQL nativo via DATABASE_URL...');
+} else {
+    console.log('ℹ️ DATABASE_URL não encontrada. Usando armazenamento em arquivo products.json.');
+}
+
+/**
+ * Inicializa a tabela no PostgreSQL e realiza seed se estiver vazia
+ */
+async function initDatabase() {
+    if (!pool) return;
+    try {
+        const client = await pool.connect();
+        try {
+            await client.query(`
+                CREATE TABLE IF NOT EXISTS menu_config (
+                    key VARCHAR(50) PRIMARY KEY,
+                    data JSONB NOT NULL,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+            `);
+
+            const res = await client.query("SELECT data FROM menu_config WHERE key = 'products'");
+            if (res.rows.length === 0) {
+                let initial = [];
+                try {
+                    initial = JSON.parse(fs.readFileSync(PRODUCTS_FILE, 'utf8'));
+                } catch (e) {
+                    initial = [];
+                }
+                await client.query(
+                    "INSERT INTO menu_config (key, data, updated_at) VALUES ('products', $1, NOW())",
+                    [JSON.stringify(initial)]
+                );
+                console.log('✅ Tabela menu_config criada e populada com os caldos iniciais!');
+            } else {
+                console.log('✅ PostgreSQL ativo! Cardápio carregado com sucesso do banco.');
+            }
+        } finally {
+            client.release();
+        }
+    } catch (err) {
+        console.error('⚠️ Falha ao inicializar PostgreSQL:', err.message);
+        console.log('ℹ️ Continuando com fallback para disco.');
+    }
+}
+
+/**
+ * Busca a lista de produtos (PostgreSQL -> disco)
+ */
+async function fetchProducts() {
+    if (pool) {
+        try {
+            const res = await pool.query("SELECT data FROM menu_config WHERE key = 'products'");
+            if (res.rows.length > 0 && Array.isArray(res.rows[0].data)) {
+                return res.rows[0].data;
+            }
+        } catch (err) {
+            console.error('⚠️ Erro ao consultar banco, usando arquivo:', err.message);
+        }
+    }
+
+    try {
+        return JSON.parse(fs.readFileSync(PRODUCTS_FILE, 'utf8'));
+    } catch (e) {
+        return [];
+    }
+}
+
+/**
+ * Grava a lista de produtos (PostgreSQL + cópia no disco)
+ */
+async function persistProducts(products) {
+    let savedInDB = false;
+    if (pool) {
+        try {
+            await pool.query(`
+                INSERT INTO menu_config (key, data, updated_at)
+                VALUES ('products', $1, NOW())
+                ON CONFLICT (key) DO UPDATE SET data = $1, updated_at = NOW()
+            `, [JSON.stringify(products)]);
+            savedInDB = true;
+            console.log('💾 Cardápio persistido permanentemente no PostgreSQL!');
+        } catch (err) {
+            console.error('⚠️ Erro ao gravar no PostgreSQL:', err.message);
+        }
+    }
+
+    try {
+        fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 4), 'utf8');
+    } catch (e) {
+        console.warn('⚠️ Não foi possível gravar arquivo local:', e.message);
+    }
+
+    return { savedInDB };
 }
 
 const MIME_TYPES = {
@@ -44,8 +148,7 @@ function sendJSON(res, statusCode, data) {
     res.end(JSON.stringify(data));
 }
 
-const server = http.createServer((req, res) => {
-    // Headers CORS para qualquer requisição
+const server = http.createServer(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -60,46 +163,40 @@ const server = http.createServer((req, res) => {
     let pathname = decodeURIComponent(parsedUrl.pathname);
 
     // =========================================================================
-    // API: Obter lista de produtos
+    // API: Obter lista de produtos (Lê do PostgreSQL)
     // =========================================================================
     if (pathname === '/api/products' && req.method === 'GET') {
-        fs.readFile(PRODUCTS_FILE, 'utf8', (err, data) => {
-            if (err) {
-                return sendJSON(res, 500, { error: 'Erro ao ler arquivo de produtos' });
-            }
-            try {
-                const products = JSON.parse(data);
-                sendJSON(res, 200, products);
-            } catch (parseErr) {
-                sendJSON(res, 500, { error: 'Arquivo products.json corrompido' });
-            }
-        });
-        return;
+        try {
+            const products = await fetchProducts();
+            return sendJSON(res, 200, products);
+        } catch (err) {
+            return sendJSON(res, 500, { error: 'Erro ao carregar cardápio' });
+        }
     }
 
     // =========================================================================
-    // API: Salvar lista de produtos
+    // API: Salvar lista de produtos (Grava no PostgreSQL)
     // =========================================================================
     if (pathname === '/api/products' && req.method === 'POST') {
         let body = '';
         req.on('data', chunk => {
             body += chunk;
-            // Limite de segurança 10MB
-            if (body.length > 1e7) req.destroy();
+            if (body.length > 2e7) req.destroy(); // 20MB
         });
 
-        req.on('end', () => {
+        req.on('end', async () => {
             try {
                 const products = JSON.parse(body);
                 if (!Array.isArray(products)) {
                     return sendJSON(res, 400, { error: 'Dados inválidos: deve ser um array de produtos' });
                 }
 
-                fs.writeFile(PRODUCTS_FILE, JSON.stringify(products, null, 4), 'utf8', (err) => {
-                    if (err) {
-                        return sendJSON(res, 500, { error: 'Erro ao salvar produtos no disco' });
-                    }
-                    sendJSON(res, 200, { success: true, message: 'Cardápio atualizado com sucesso!', count: products.length });
+                const result = await persistProducts(products);
+                sendJSON(res, 200, {
+                    success: true,
+                    message: 'Cardápio salvo com sucesso!',
+                    savedInDB: result.savedInDB,
+                    count: products.length
                 });
             } catch (err) {
                 sendJSON(res, 400, { error: 'JSON inválido enviado' });
@@ -125,11 +222,9 @@ const server = http.createServer((req, res) => {
                     return sendJSON(res, 400, { error: 'Parâmetros filename e base64 são obrigatórios' });
                 }
 
-                // Extrair tipo e dados puros
                 const matches = base64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
                 const buffer = matches ? Buffer.from(matches[2], 'base64') : Buffer.from(base64, 'base64');
 
-                // Nome de arquivo limpo e seguro
                 const ext = path.extname(filename).toLowerCase() || '.jpg';
                 const safeName = 'caldo-' + Date.now() + ext;
                 const destPath = path.join(UPLOAD_DIR, safeName);
@@ -142,7 +237,7 @@ const server = http.createServer((req, res) => {
                     sendJSON(res, 200, { success: true, url: publicUrl });
                 });
             } catch (err) {
-                sendJSON(res, 400, { error: 'Erro ao processar imagem enviada' });
+                sendJSON(res, 400, { error: 'Erro ao processar imagem' });
             }
         });
         return;
@@ -193,10 +288,12 @@ const server = http.createServer((req, res) => {
     });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-    console.log(`\n🍲 ========================================================`);
-    console.log(`✨ Sabor Mineiro ACK rodando com sucesso!`);
-    console.log(`🌐 Cardápio: http://localhost:${PORT}`);
-    console.log(`⚙️ Painel Administrativo: http://localhost:${PORT}/admin.html`);
-    console.log(`========================================================\n`);
+initDatabase().then(() => {
+    server.listen(PORT, '0.0.0.0', () => {
+        console.log(`\n🍲 ========================================================`);
+        console.log(`✨ Sabor Mineiro ACK rodando com suporte a PostgreSQL!`);
+        console.log(`🌐 Cardápio: http://localhost:${PORT}`);
+        console.log(`⚙️ Painel Administrativo: http://localhost:${PORT}/admin.html`);
+        console.log(`========================================================\n`);
+    });
 });
