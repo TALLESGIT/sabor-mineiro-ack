@@ -86,22 +86,36 @@ async function loadStoreStatus() {
  */
 function renderStoreStatusUI() {
     const badge = document.getElementById('store-status-badge');
+    const heroBadge = document.getElementById('store-status-hero');
     const closedBanner = document.getElementById('store-closed-banner');
     const closedBannerNotice = document.getElementById('store-closed-notice');
     const t = (typeof getTranslation === 'function') ? getTranslation : (k) => k;
 
-    // Atualizar Badge no Cabeçalho
+    const hoursText = storeStatus.hours || '17:00 - 23:00';
+
+    // 1. Badge no Cabeçalho (apenas em telas grandes para não embolar o mobile)
     if (badge) {
         if (storeStatus && storeStatus.isOpen) {
-            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-sm';
-            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span>${t('store_status_open')} (${storeStatus.hours || '17h - 23h'})</span>`;
+            badge.className = 'hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-sm whitespace-nowrap';
+            badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span>${t('store_status_open')} (${hoursText})</span>`;
         } else {
-            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-red-500/15 text-red-400 border border-red-500/30 shadow-sm';
+            badge.className = 'hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-500/15 text-red-400 border border-red-500/30 shadow-sm whitespace-nowrap';
             badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-400"></span> <span>${t('store_status_closed')}</span>`;
         }
     }
 
-    // Atualizar Banner de Fechado no Checkout
+    // 2. Badge de Destaque no Topo do Hero (visível com muito espaço no mobile e desktop)
+    if (heroBadge) {
+        if (storeStatus && storeStatus.isOpen) {
+            heroBadge.className = 'inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shadow-md transition';
+            heroBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> <span>${t('store_status_open')} • ${t('store_delivery_hours_prefix')} ${hoursText}</span>`;
+        } else {
+            heroBadge.className = 'inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/40 shadow-md transition';
+            heroBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-400"></span> <span>${t('store_status_closed')} • ${t('store_delivery_hours_prefix')} ${hoursText}</span>`;
+        }
+    }
+
+    // 3. Banner de Fechado no Checkout
     if (closedBanner) {
         if (storeStatus && !storeStatus.isOpen) {
             closedBanner.classList.remove('hidden');

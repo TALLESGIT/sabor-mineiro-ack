@@ -47,7 +47,7 @@
         }
     </script>
     <!-- Estilos Customizados -->
-    <link rel="stylesheet" href="css/style.css?v=6">
+    <link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body class="relative min-h-screen selection:bg-amber-500 selection:text-white">
 
@@ -58,43 +58,46 @@
     <canvas id="snowCanvas" class="snowflakes" aria-hidden="true"></canvas>
 
     <!-- Cabeçalho -->
-    <header id="main-header" class="fixed top-0 left-0 w-full z-50 glass-panel border-b border-white/10 px-4 lg:px-8 py-3 transition-all duration-300">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <a href="#" class="flex items-center space-x-2 sm:space-x-3 no-underline min-w-0 mr-3">
-                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-amber-600 to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/30 flex-shrink-0">
-                    <i class="fa-solid font-bold text-white text-base sm:text-lg fa-bowl-food"></i>
+    <header id="main-header" class="fixed top-0 left-0 w-full z-50 glass-panel border-b border-white/10 px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+            <!-- Logo e Marca (sem truncar no mobile) -->
+            <a href="#" class="flex items-center space-x-2 sm:space-x-3 no-underline shrink-0">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-amber-600 to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/30 shrink-0">
+                    <i class="fa-solid font-bold text-white text-sm sm:text-lg fa-bowl-food"></i>
                 </div>
-                <div class="min-w-0">
-                    <h1 class="text-sm sm:text-lg md:text-xl font-extrabold tracking-tight text-white flex items-center gap-1">
-                        <span class="truncate">Sabor Mineiro</span> <span class="text-amber-500 font-serif italic flex-shrink-0">ACK</span>
+                <div class="leading-tight shrink-0">
+                    <h1 class="text-sm sm:text-lg md:text-xl font-extrabold tracking-tight text-white flex items-center gap-1 whitespace-nowrap">
+                        <span>Sabor Mineiro</span> <span class="text-amber-500 font-serif italic">ACK</span>
                     </h1>
-                    <p class="text-[9px] sm:text-[10px] md:text-xs text-amber-200/70 font-medium tracking-wider uppercase truncate" data-i18n="header_tagline">Nantucket, MA 🇺🇸 🇧🇷</p>
+                    <p class="text-[9px] sm:text-[10px] md:text-xs text-amber-200/70 font-medium tracking-wider uppercase whitespace-nowrap" data-i18n="header_tagline">Nantucket, MA 🇺🇸 🇧🇷</p>
                 </div>
             </a>
 
-            <div class="flex items-center gap-2 sm:gap-3">
-                <!-- Status de Atendimento da Loja -->
-                <div id="store-status-badge" class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-sm">
+            <!-- Controles da Direita -->
+            <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                <!-- Status de Atendimento da Loja (Apenas em telas grandes no header, no mobile fica perfeito e destacado no Hero) -->
+                <div id="store-status-badge" class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-sm whitespace-nowrap">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span data-i18n="store_status_open">Aberto Agora (17:00 - 23:00)</span>
                 </div>
 
                 <!-- Seletor de Idioma com Bandeiras -->
-                <div class="lang-switcher" role="group" aria-label="Language">
+                <div class="lang-switcher shrink-0" role="group" aria-label="Language">
                     <button id="lang-pt" class="lang-btn active" onclick="switchLanguage('pt')" aria-pressed="true" title="Português">
-                        <img class="flag-img" src="https://flagcdn.com/w40/br.png" alt="BR" width="20" height="14">
+                        <img class="flag-img" src="https://flagcdn.com/w40/br.png" alt="BR" width="18" height="12">
                         <span class="lang-label">PT</span>
                     </button>
                     <button id="lang-en" class="lang-btn" onclick="switchLanguage('en')" aria-pressed="false" title="English">
-                        <img class="flag-img" src="https://flagcdn.com/w40/us.png" alt="US" width="20" height="14">
+                        <img class="flag-img" src="https://flagcdn.com/w40/us.png" alt="US" width="18" height="12">
                         <span class="lang-label">EN</span>
                     </button>
                 </div>
 
-                <a href="#cardapio" id="header-cta" class="relative flex items-center gap-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-semibold text-xs md:text-sm px-3 sm:px-4 py-2 rounded-full shadow-lg transition duration-200">
-                    <i class="fa-solid fa-utensils"></i>
-                    <span class="hidden xs:inline" data-i18n="nav_order_btn">Fazer Pedido</span>
-                    <span class="xs:hidden" data-i18n="nav_order_short">Pedir</span>
+                <!-- Botão CTA Pedir -->
+                <a href="#cardapio" id="header-cta" class="relative flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-semibold text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-lg transition duration-200 shrink-0">
+                    <i class="fa-solid fa-utensils text-[11px] sm:text-xs"></i>
+                    <span class="hidden sm:inline" data-i18n="nav_order_btn">Fazer Pedido</span>
+                    <span class="sm:hidden" data-i18n="nav_order_short">Pedir</span>
                     <span id="cart-badge" class="cart-badge">0</span>
                 </a>
             </div>
@@ -102,15 +105,24 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="relative pt-28 pb-16 sm:pt-32 sm:pb-20 md:pt-40 md:pb-28 px-4 overflow-hidden z-10">
+    <section class="relative pt-24 pb-14 sm:pt-32 sm:pb-20 md:pt-40 md:pb-28 px-4 overflow-hidden z-10">
         <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-72 sm:w-96 h-72 sm:h-96 bg-orange-600/20 rounded-full blur-3xl -z-10 pointer-events-none"></div>
         <div class="absolute top-1/3 right-10 w-48 sm:w-72 h-48 sm:h-72 bg-amber-500/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
 
         <div class="max-w-6xl mx-auto text-center">
-            <div class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px] sm:text-xs md:text-sm font-medium mb-5 sm:mb-6 animate-pulse">
-                <i class="fa-solid fa-snowflake"></i>
-                <span data-i18n="hero_tag">O Aconchego Mineiro no Inverno de Nantucket</span>
-                <i class="fa-solid fa-heart text-red-400 text-xs"></i>
+            <!-- Badges do Topo do Hero: Aconchego + Status de Atendimento (destaque espaçoso em qualquer tela) -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-5 sm:mb-6">
+                <div class="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px] sm:text-xs md:text-sm font-medium">
+                    <i class="fa-solid fa-snowflake"></i>
+                    <span data-i18n="hero_tag">O Aconchego Mineiro no Inverno de Nantucket</span>
+                    <i class="fa-solid fa-heart text-red-400 text-xs"></i>
+                </div>
+
+                <!-- Status de Atendimento no Hero -->
+                <div id="store-status-hero" class="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shadow-md">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Aberto Agora • Horário: 17:00 - 23:00</span>
+                </div>
             </div>
 
             <h2 class="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-5 sm:mb-6 leading-[1.15]">
@@ -562,11 +574,11 @@
     </footer>
 
     <!-- Scripts da Aplicação Modularizados -->
-    <script src="js/i18n.js?v=6"></script>
-    <script src="js/cart.js?v=6"></script>
-    <script src="js/reviews.js?v=6"></script>
-    <script src="js/snow.js?v=6"></script>
-    <script src="js/main.js?v=6"></script>
+    <script src="js/i18n.js?v=7"></script>
+    <script src="js/cart.js?v=7"></script>
+    <script src="js/reviews.js?v=7"></script>
+    <script src="js/snow.js?v=7"></script>
+    <script src="js/main.js?v=7"></script>
 
 </body>
 </html>
