@@ -357,6 +357,18 @@ const server = http.createServer(async (req, res) => {
     let pathname = decodeURIComponent(parsedUrl.pathname);
 
     // =========================================================================
+    // API: Keep-Alive / Health Check (UptimeRobot / Cron-Job ping)
+    // =========================================================================
+    if ((pathname === '/health' || pathname === '/ping') && req.method === 'GET') {
+        return sendJSON(res, 200, {
+            status: 'ok',
+            service: 'Sabor Mineiro ACK',
+            uptime: Math.floor(process.uptime()),
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    // =========================================================================
     // API: Obter lista de produtos (PostgreSQL)
     // =========================================================================
     if (pathname === '/api/products' && req.method === 'GET') {
