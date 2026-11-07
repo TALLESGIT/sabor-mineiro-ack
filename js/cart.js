@@ -246,7 +246,7 @@ function renderProductsGrid() {
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-[2]"></div>
                         
                         ${badgeText ? `
-                            <span class="absolute top-3 sm:top-4 left-3 sm:left-4 ${badgeColor} text-white font-bold text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg uppercase tracking-wider z-[3]">
+                            <span class="absolute top-3 sm:top-4 right-3 sm:right-4 ${badgeColor} text-white font-bold text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg border border-white/20 uppercase tracking-wider z-[3]">
                                 <i class="fa-solid ${badgeIcon} mr-1"></i> <span>${badgeText}</span>
                             </span>
                         ` : ''}
