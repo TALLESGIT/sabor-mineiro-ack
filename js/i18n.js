@@ -91,7 +91,8 @@ const TRANSLATIONS = {
         delivery_desc: "Não importa se você está no centro (Town), Mid-Island, Siasconset ou Madaket — nós levamos os caldos fervendo até a porta da sua casa com embalagens térmicas especiais.",
         delivery_item_1: "Embalagens seladas térmicas que mantêm o calor por muito tempo",
         delivery_item_2: "Entregas rápidas e com total higiene",
-        delivery_item_3: "Pagamentos facilitados (Zelle, Cash, Venmo ou Card)",
+        delivery_item_3: "Formas de pagamento: Zelle e Cash (Dinheiro)",
+        checkout_payment_note: "Pagamento: Zelle ou Cash (Dinheiro)",
         delivery_img_tag: "Nantucket Island, MA",
         delivery_img_caption: "O calor de Minas no inverno norte-americano",
 
@@ -226,7 +227,8 @@ const TRANSLATIONS = {
         delivery_desc: "Whether you are located in Town, Mid-Island, Siasconset, or Madaket — we bring steaming hot soups directly to your doorstep in heavy-duty thermal insulated containers.",
         delivery_item_1: "Heavy-duty thermal sealed packaging that stays hot for hours",
         delivery_item_2: "Fast, dependable and hygienic delivery across the island",
-        delivery_item_3: "Convenient payment methods (Zelle, Cash, Venmo, or Card)",
+        delivery_item_3: "Payment methods: Zelle and Cash",
+        checkout_payment_note: "Accepted payments: Zelle or Cash",
         delivery_img_tag: "Nantucket Island, MA",
         delivery_img_caption: "Brazilian warmth in the New England winter",
 

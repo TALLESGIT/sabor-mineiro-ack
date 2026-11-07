@@ -630,6 +630,7 @@ function sendWhatsAppOrder() {
         message += `\n*TOTAL:* $${totalPrice}.00 USD\n`;
         message += `*Customer:* ${name}\n`;
         message += `*Delivery Address:* ${address} (Nantucket)\n`;
+        message += `💵 *Payment:* Zelle or Cash\n`;
         const mapUrl = (customerLocation && customerLocation.mapUrl)
             ? customerLocation.mapUrl
             : `https://maps.google.com/?q=${encodeURIComponent(address)}`;
@@ -648,6 +649,7 @@ function sendWhatsAppOrder() {
         message += `\n*VALOR TOTAL:* $${totalPrice}.00 USD\n`;
         message += `*Cliente:* ${name}\n`;
         message += `*Endereço para entrega:* ${address}\n`;
+        message += `💵 *Pagamento:* Zelle ou Cash (Dinheiro)\n`;
         const mapUrl = (customerLocation && customerLocation.mapUrl)
             ? customerLocation.mapUrl
             : `https://maps.google.com/?q=${encodeURIComponent(address)}`;
