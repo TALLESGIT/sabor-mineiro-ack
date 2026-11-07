@@ -366,3 +366,12 @@ input:focus {
 .order-hint--ready {
     animation: none;
 }
+
+/* Ocultar barra de rolagem horizontal em carrosséis mobile */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

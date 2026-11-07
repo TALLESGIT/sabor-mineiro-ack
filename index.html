@@ -47,7 +47,7 @@
         }
     </script>
     <!-- Estilos Customizados -->
-    <link rel="stylesheet" href="css/style.css?v=9">
+    <link rel="stylesheet" href="css/style.css?v=10">
 </head>
 <body class="relative min-h-screen selection:bg-amber-500 selection:text-white">
 
@@ -370,6 +370,56 @@
         </div>
     </section>
 
+    <!-- Divisor -->
+    <div class="divider-glow max-w-4xl mx-auto"></div>
+
+    <!-- Seção de Avaliações dos Clientes (Carrossel no Celular e Grid no Desktop) -->
+    <section id="avaliacoes" class="py-12 sm:py-16 px-4 relative z-10 max-w-6xl mx-auto">
+        <!-- Cabeçalho da Seção -->
+        <div class="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-3" data-i18n="reviews_section_tag">
+                <i class="fa-solid fa-star text-[10px]"></i> Opinião de Quem Provou
+            </span>
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-3" data-i18n="reviews_section_title">
+                Avaliações dos Nossos Clientes ⭐
+            </h2>
+            <p class="text-gray-400 text-xs sm:text-sm leading-relaxed" data-i18n="reviews_section_desc">
+                Veja o que as pessoas de Nantucket estão dizendo sobre os nossos caldos quentinhos artesanais!
+            </p>
+
+            <!-- Card de Média e Botão de Avaliar -->
+            <div class="mt-6 inline-flex flex-wrap items-center justify-center gap-3 sm:gap-6 bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-3.5 shadow-md">
+                <div class="flex items-center gap-2">
+                    <span id="reviews-avg-rating" class="text-2xl sm:text-3xl font-extrabold text-amber-400">5.0</span>
+                    <div class="text-left">
+                        <div id="reviews-avg-stars" class="text-amber-400 text-xs flex gap-0.5">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <span id="reviews-total-count" class="text-[11px] text-gray-400">(0 avaliações de clientes)</span>
+                    </div>
+                </div>
+
+                <div class="h-6 w-px bg-white/10 hidden sm:block"></div>
+
+                <button type="button" onclick="openReviewModal()" class="bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2 transform active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span data-i18n="reviews_btn_leave">Avaliar Meu Pedido</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Indicador de Deslizar para o lado no Celular -->
+        <p class="sm:hidden text-center text-[11px] text-amber-300/80 mb-3 flex items-center justify-center gap-1.5 font-medium">
+            <i class="fa-solid fa-arrows-left-right text-amber-400"></i>
+            <span data-i18n="reviews_swipe_hint">Deslize para o lado para ver mais 👉</span>
+        </p>
+
+        <!-- Carrossel no Mobile (deslizar para o lado) & Grid no Desktop -->
+        <div id="reviews-grid" class="flex overflow-x-auto sm:grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 snap-x snap-mandatory pb-4 px-2 sm:px-0 no-scrollbar scroll-smooth">
+            <!-- Preenchido via js/reviews.js -->
+        </div>
+    </section>
+
     <!-- Entregas -->
     <section id="entregas" class="py-12 sm:py-16 px-4 relative z-10 bg-black/40 border-y border-white/5">
         <div class="max-w-6xl mx-auto">
@@ -397,17 +447,17 @@
                             </li>
                             <li class="flex items-start sm:items-center gap-2.5 sm:gap-3">
                                 <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] sm:text-xs flex-shrink-0 mt-0.5 sm:mt-0">✓</span>
-                                <span data-i18n="delivery_item_3">Formas de pagamento: Zelle e Cash (Dinheiro)</span>
+                                <span data-i18n="delivery_item_3">Formas de pagamento: Zelle e Dinheiro (Cash)</span>
                             </li>
                         </ul>
 
                         <!-- Métodos de pagamento visuais (Apenas Zelle e Cash) -->
                         <div class="flex flex-wrap gap-2.5 mt-2">
                             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/25 text-xs text-purple-300 font-semibold shadow-sm">
-                                <i class="fa-solid fa-bolt text-purple-400"></i> Zelle
+                                <i class="fa-solid fa-bolt text-purple-400"></i> <span data-i18n="badge_zelle">Zelle</span>
                             </span>
                             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-300 font-semibold shadow-sm">
-                                <i class="fa-solid fa-money-bill-wave text-emerald-400"></i> Cash (Dinheiro)
+                                <i class="fa-solid fa-money-bill-wave text-emerald-400"></i> <span data-i18n="badge_cash">Dinheiro (Cash)</span>
                             </span>
                         </div>
                     </div>
@@ -429,50 +479,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Divisor -->
-    <div class="divider-glow max-w-4xl mx-auto"></div>
-
-    <!-- Seção de Avaliações dos Clientes -->
-    <section id="avaliacoes" class="py-12 sm:py-16 px-4 relative z-10 max-w-6xl mx-auto">
-        <!-- Cabeçalho da Seção -->
-        <div class="text-center max-w-2xl mx-auto mb-10">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-3" data-i18n="reviews_section_tag">
-                <i class="fa-solid fa-star text-[10px]"></i> Opinião de Quem Provou
-            </span>
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-3" data-i18n="reviews_section_title">
-                Avaliações dos Nossos Clientes ⭐
-            </h2>
-            <p class="text-gray-400 text-xs sm:text-sm leading-relaxed" data-i18n="reviews_section_desc">
-                Veja o que as pessoas de Nantucket estão dizendo sobre os nossos caldos quentinhos artesanais!
-            </p>
-
-            <!-- Card de Média e Botão de Avaliar -->
-            <div class="mt-6 inline-flex flex-wrap items-center justify-center gap-3 sm:gap-6 bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-3.5 shadow-md">
-                <div class="flex items-center gap-2">
-                    <span id="reviews-avg-rating" class="text-2xl sm:text-3xl font-extrabold text-amber-400">5.0</span>
-                    <div class="text-left">
-                        <div id="reviews-avg-stars" class="text-amber-400 text-xs flex gap-0.5">
-                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                        </div>
-                        <span id="reviews-total-count" class="text-[11px] text-gray-400">(3 avaliações de clientes)</span>
-                    </div>
-                </div>
-
-                <div class="h-6 w-px bg-white/10 hidden sm:block"></div>
-
-                <button type="button" onclick="openReviewModal()" class="bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2 transform active:scale-95 cursor-pointer">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    <span data-i18n="reviews_btn_leave">Avaliar Meu Pedido</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Grid de Cards de Avaliações -->
-        <div id="reviews-grid" class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
-            <!-- Preenchido via js/reviews.js -->
         </div>
     </section>
 
@@ -571,11 +577,11 @@
     </footer>
 
     <!-- Scripts da Aplicação Modularizados -->
-    <script src="js/i18n.js?v=9"></script>
-    <script src="js/cart.js?v=9"></script>
-    <script src="js/reviews.js?v=9"></script>
-    <script src="js/snow.js?v=9"></script>
-    <script src="js/main.js?v=9"></script>
+    <script src="js/i18n.js?v=10"></script>
+    <script src="js/cart.js?v=10"></script>
+    <script src="js/reviews.js?v=10"></script>
+    <script src="js/snow.js?v=10"></script>
+    <script src="js/main.js?v=10"></script>
 
 </body>
 </html>

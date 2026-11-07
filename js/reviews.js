@@ -120,7 +120,7 @@ function renderReviews() {
         const date = escapeReviewHtml(item.date_formatted || (item.created_at ? new Date(item.created_at).toLocaleDateString('pt-BR') : 'Recentemente'));
 
         return `
-            <div class="glass-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between border border-white/10 hover:border-amber-500/40 transition duration-300 shadow-lg group">
+            <div class="glass-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between border border-white/10 hover:border-amber-500/40 transition duration-300 shadow-lg group min-w-[85vw] max-w-[340px] sm:min-w-0 sm:max-w-none shrink-0 sm:shrink snap-center">
                 <div>
                     <!-- Topo do Card: Avatar, Nome, Estrelas e Verificado -->
                     <div class="flex items-start justify-between gap-3 mb-3">
